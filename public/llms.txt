@@ -1,0 +1,29 @@
+# Qubi Flow Orchestrator
+
+> Qubi Flow Orchestrator is an enterprise workflow orchestration platform for AI agents, bots, systems, and human-in-the-loop operations.
+
+## Site
+
+- Production URL: https://myqubi.com/
+- Sitemap: https://myqubi.com/sitemap.xml
+- Robots: https://myqubi.com/robots.txt
+
+## Key Pages
+
+- Home: https://myqubi.com/
+- Use Cases: https://myqubi.com/solutions/use-cases
+- Industries: https://myqubi.com/solutions/industries
+- Customers: https://myqubi.com/customers
+- Pricing: https://myqubi.com/pricing
+- Blog: https://myqubi.com/resources/blog
+- Demo: https://myqubi.com/resources/demo
+- Newsroom: https://myqubi.com/resources/newsroom
+- FAQs: https://myqubi.com/resources/faqs
+
+## Summary
+
+Qubi helps teams design, orchestrate, monitor, and optimize business workflows across enterprise systems. The product emphasizes agentic automation, analytics, integration, governance, and human review steps where needed.
+
+## Contact
+
+- Demo booking: https://meetings.hubspot.com/maheshv
