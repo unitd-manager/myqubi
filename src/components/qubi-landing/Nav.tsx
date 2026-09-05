@@ -1,5 +1,6 @@
 import qubiLogo from "@/assets/qubi-logo1.png";
 import qboticaLogo from "@/assets/qbotica-logo.png";
+import { Link } from "react-router-dom";
 
 interface NavProps {
   onOpenVideo: () => void;
@@ -19,7 +20,7 @@ const Nav = ({ onOpenVideo }: NavProps) => {
           <a href="#how">How it works</a>
           <a href="#use-cases">Solutions</a>
           <a href="#enterprise">Enterprise</a>
-          <a href="/customers">Customers</a>
+          <Link to="/customers">Customers</Link>
           <a href="https://myqubi.com/pricing" target="_blank" rel="noreferrer">Pricing</a>
         </div>
         <div className="nav-actions">
