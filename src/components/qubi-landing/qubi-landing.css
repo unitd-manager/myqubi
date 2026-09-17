@@ -97,31 +97,80 @@
 .qubi-landing .brand {
   display: flex;
   align-items: center;
-  gap: 4px;
-  font-weight: 900;
-  letter-spacing: -0.04em;
-  font-size: 1.35rem;
+  text-decoration: none;
+}
+
+.qubi-landing .brand-logo-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: max-content;
 }
 
 .qubi-landing .brand-mark {
-  height: 38px;
-  width: auto;
-  object-fit: contain;
+  width: 76px;
+  height: auto;
   display: block;
+  object-fit: contain;
 }
 
-.qubi-landing .brand small {
-  position: relative;
-  top: 10px;
-  color: var(--muted);
-  font-weight: 700;
-  font-size: 0.78rem;
-  letter-spacing: 0.04em;
-  margin-left: 2px;
-  margin-right: 6px;
-  white-space: normal;
-   text-align: center;
+.qubi-landing .brand-divider {
+  width: 1px;
+  height: 28px;
+  background: var(--orange);
 }
+
+.qubi-landing .footer-intro .brand-logo-wrap {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0;
+}
+
+.qubi-landing .footer-intro .brand-divider {
+  width: 100%;
+  height: 2px;
+  margin-top: 3px;
+}
+
+.qubi-landing .footer-intro .powered-by {
+  margin-top: 4px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.qubi-landing .powered-by {
+  margin-top: 0;
+  font-size: 0.88rem;
+  line-height: 1.1;
+  font-weight: 700;
+  letter-spacing: normal;
+  color: #777;
+  white-space: nowrap;
+  text-align: left;
+}
+
+.qubi-landing .powered-by span {
+  color: #777;
+}
+
+.qubi-landing .powered-by strong {
+  color: #050505;
+}
+
+.qubi-landing .qbotica-wordmark {
+  display: block;
+  width: 86px;
+  height: auto;
+  background: transparent;
+  object-fit: contain;
+  mix-blend-mode: multiply;
+}
+
+.qubi-landing .qbotica-nav-wordmark {
+  mix-blend-mode: darken;
+}
+
 
 .qubi-landing .brand-mark-secondary {
   height: 20px;
@@ -200,7 +249,7 @@
 .qubi-landing .hero {
   position: relative;
   min-height: 930px;
-  padding: 148px 0 78px;
+  padding: 60px 0 78px;
   overflow: hidden;
 }
 
@@ -687,7 +736,7 @@
 }
 
 .qubi-landing .section-pad {
-  padding: 130px 0;
+  padding: 90px 0;
 }
 
 .qubi-landing .section-head {
@@ -727,6 +776,7 @@
   background: var(--paper);
   border-radius: 52px 52px 0 0;
   margin-top: 32px;
+  padding: 55px 0 90px;
   overflow: hidden;
 }
 
@@ -1920,9 +1970,10 @@
 .qubi-landing .copyright {
   margin-top: 50px;
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
   color: #958f88;
   font-size: 0.72rem;
+  text-align: right;
 }
 
 /* =====================================================
@@ -2143,7 +2194,7 @@
     padding-left: 15px;
   }
 
-  .qubi-landing .brand small,
+  .qubi-landing .powered-by,
   .qubi-landing .nav-watch {
     display: none;
   }
@@ -2153,8 +2204,13 @@
     font-size: 0.78rem;
   }
 
+  .qubi-landing .nav-links {
+    border-left: 0;
+    padding-left: 0;
+  }
+
   .qubi-landing .hero {
-    padding-top: 125px;
+    padding-top: 55px;
   }
 
   .qubi-landing .hero-copy h1 {
@@ -2209,7 +2265,11 @@
   }
 
   .qubi-landing .section-pad {
-    padding: 90px 0;
+    padding: 60px 0;
+  }
+
+  .qubi-landing .why {
+    padding: 55px 0 90px;
   }
 
   .qubi-landing .section-head {

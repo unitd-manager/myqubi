@@ -4,6 +4,27 @@ import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
 import { RedirectHandler } from "@/components/RedirectHandler";
 import Index from "./pages/Index.tsx";
 
+const QUBI_FAVICON_PATH = "/qubi-logo.png?v=5";
+
+const FaviconManager = () => {
+  useEffect(() => {
+    document.querySelectorAll('link[rel="icon"], link[rel="shortcut icon"]').forEach((node) => {
+      node.remove();
+    });
+
+    ["icon", "shortcut icon"].forEach((rel) => {
+      const link = document.createElement("link");
+      link.setAttribute("rel", rel);
+      link.setAttribute("type", "image/png");
+      link.setAttribute("href", QUBI_FAVICON_PATH);
+      link.setAttribute("data-qubi-favicon", "true");
+      document.head.appendChild(link);
+    });
+  }, []);
+
+  return null;
+};
+
 const ScrollToTop = () => {
   const { pathname } = useLocation();
   useEffect(() => {
@@ -43,6 +64,7 @@ const App = () => {
   return (
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
+        <FaviconManager />
         {showDeferredUi ? (
           <Suspense fallback={null}>
             <Toaster />

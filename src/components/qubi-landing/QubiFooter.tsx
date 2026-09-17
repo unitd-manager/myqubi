@@ -1,5 +1,5 @@
 import qubiLogo from "@/assets/qubi-logo1.png";
-import qboticaLogo from "@/assets/qbotica-logo.png";
+import qboticaLogo from "@/assets/logo-front.webp";
 
 const QubiFooter = () => {
   return (
@@ -7,26 +7,31 @@ const QubiFooter = () => {
       <div className="site-shell">
         <div className="footer-grid">
           <div className="footer-intro">
-            <a className="brand" href="#top">
-              <img src={qubiLogo} alt="qubi" className="brand-mark" />
-              <small>Powered by <br/> qBotica</small>
-              
+            <a className="brand" href="/#top">
+              <div className="brand-logo-wrap">
+                <img src={qubiLogo} alt="qubi" className="brand-mark" />
+                <div className="brand-divider"></div>
+                <div className="powered-by" aria-label="Powered by qBotica">
+                  <span>POWERED BY</span>
+                  <img src={qboticaLogo} alt="qBotica" className="qbotica-wordmark" />
+                </div>
+              </div>
             </a>
             <p>The agentic orchestration platform connecting AI agents, automations, systems, and people.</p>
           </div>
           <div className="footer-col">
             <strong>Product</strong>
-            <a href="#why">Why qubi</a>
-            <a href="#how">How it works</a>
-            <a href="#enterprise">Built for enterprise</a>
-            <a href="https://myqubi.com/pricing" target="_blank" rel="noreferrer">Pricing</a>
+            <a href="/#why">Why qubi</a>
+            <a href="/#how">How it works</a>
+            <a href="/#enterprise">Built for enterprise</a>
+            <a href="/pricing">Pricing</a>
           </div>
           <div className="footer-col">
             <strong>Solutions</strong>
-            <a href="#use-cases">Operations</a>
-            <a href="#use-cases">Finance</a>
-            <a href="#use-cases">Human resources</a>
-            <a href="#use-cases">IT service mgmt</a>
+            <a href="/#use-cases">Operations</a>
+            <a href="/#use-cases">Finance</a>
+            <a href="/#use-cases">Human resources</a>
+            <a href="/#use-cases">IT service management</a>
           </div>
           <div className="footer-col">
             <strong>Company</strong>
@@ -36,8 +41,9 @@ const QubiFooter = () => {
           </div>
         </div>
         <div className="copyright">
-          <span>© 2026 qubi by Qbotica. All rights reserved.</span>
-          <span>Privacy Policy · Terms of Service</span>
+          <span>
+            Privacy Policy · Terms of Service
+          </span>
         </div>
       </div>
     </footer>
