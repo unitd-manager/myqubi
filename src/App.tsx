@@ -4,27 +4,6 @@ import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
 import { RedirectHandler } from "@/components/RedirectHandler";
 import Index from "./pages/Index.tsx";
 
-const QUBI_FAVICON_PATH = "/qubi-logo.png?v=5";
-
-const FaviconManager = () => {
-  useEffect(() => {
-    document.querySelectorAll('link[rel="icon"], link[rel="shortcut icon"]').forEach((node) => {
-      node.remove();
-    });
-
-    ["icon", "shortcut icon"].forEach((rel) => {
-      const link = document.createElement("link");
-      link.setAttribute("rel", rel);
-      link.setAttribute("type", "image/png");
-      link.setAttribute("href", QUBI_FAVICON_PATH);
-      link.setAttribute("data-qubi-favicon", "true");
-      document.head.appendChild(link);
-    });
-  }, []);
-
-  return null;
-};
-
 const ScrollToTop = () => {
   const { pathname } = useLocation();
   useEffect(() => {
@@ -36,12 +15,16 @@ const ScrollToTop = () => {
 const NotFound = lazy(() => import("./pages/NotFound.tsx"));
 const UseCasesPage = lazy(() => import("./pages/UseCasesPage.tsx"));
 const IndustriesPage = lazy(() => import("./pages/IndustriesPage.tsx"));
-const CustomersPage = lazy(() => import("./pages/CustomersPage.tsx"));
-const PricingPage = lazy(() => import("./pages/PricingPage.tsx"));
+//const CustomersPage = lazy(() => import("./pages/CustomersPage.tsx"));
+const CustomersPage = lazy(() => import("@/components/customer-stories/CustomerStoriesPage.tsx"));
+
+const PricingPage = lazy(() => import("@/components/Pricing/Pricingpage.tsx"));
 const BlogPage = lazy(() => import("./pages/BlogPage.tsx"));
 const BlogDetailPage = lazy(() => import("./pages/BlogDetailPage.tsx"));
 const DemoPage = lazy(() => import("./pages/DemoPage.tsx"));
 const NewsroomPage = lazy(() => import("./pages/NewsroomPage.tsx"));
+//const Faqpage = lazy(() => import("@/components/FAQ/Faqpage.tsx"));
+
 const FAQsPage = lazy(() => import("./pages/FAQsPage.tsx"));
 const Toaster = lazy(() => import("@/components/ui/toaster").then((module) => ({ default: module.Toaster })));
 const SonnerToaster = lazy(() => import("@/components/ui/sonner").then((module) => ({ default: module.Toaster })));
@@ -64,7 +47,6 @@ const App = () => {
   return (
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
-        <FaviconManager />
         {showDeferredUi ? (
           <Suspense fallback={null}>
             <Toaster />
@@ -72,7 +54,7 @@ const App = () => {
           </Suspense>
         ) : null}
         <ScrollToTop />
-        <RedirectHandler enabled={true} excludedPaths={["/customers"]} />
+        <RedirectHandler enabled={false} excludedPaths={[]} />
         <Suspense fallback={<RouteFallback />}>
           <Routes>
             <Route path="/home" element={<Index />} />
