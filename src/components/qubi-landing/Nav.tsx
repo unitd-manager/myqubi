@@ -4,7 +4,6 @@ import qboticaLogo from "@/assets/qbotica-logo-trans.png";
 
 interface NavProps {
   onOpenVideo: () => void;
-}
 
 const Nav = ({ onOpenVideo }: NavProps) => {
   const [isMobileOpen, setIsMobileOpen] = useState(false);
