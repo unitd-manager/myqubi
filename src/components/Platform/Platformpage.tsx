@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "../qubi-landing/qubi-landing.css";
 import "./Platformpage.css";
 import Nav from "../qubi-landing/Nav";
@@ -43,7 +44,7 @@ export default function Platformpage() {
   const [selected, setSelected] = useState(0);
   const [openGroups, setOpenGroups] = useState<string[]>([data[0].cat]);
   const [isVideoOpen, setIsVideoOpen] = useState(false);
-
+const navigate = useNavigate();
   const selectedItem = data[selected];
   const toggleGroup = (group: string) => {
     const isCurrentlyOpen = openGroups.includes(group);
@@ -52,9 +53,9 @@ export default function Platformpage() {
       if (firstIndexInGroup !== -1) {
         setSelected(firstIndexInGroup);
       }
-      setOpenGroups([group]);        // <- ippo array la idhe group mattum, matha ellam auto close
+      setOpenGroups([group]);        
     } else {
-      setOpenGroups([]);             // <- same group click pannina close aagum
+      setOpenGroups([]);             
     }
   };
   
@@ -219,8 +220,13 @@ export default function Platformpage() {
               <p>The Platform page explains what qubi is made of. The Solutions page shows how those capabilities come together across real workflows and industries.</p>
             </div>
             <div className="platform-bridge-actions">
-              <a className="platform-btn platform-orange" href="/solutions">Explore Solutions →</a>
-              <a className="platform-btn platform-watch platform-bridge-watch" onClick={() => setIsVideoOpen(true)}>Watch the Demo</a>
+             <button 
+  className="btn platform-orange" 
+  onClick={() => navigate("/solutions")}
+>
+  Explore Solutions →
+</button>
+ <a className="platform-btn platform-watch platform-bridge-watch" onClick={() => setIsVideoOpen(true)}>Watch the Demo</a>
             </div>
           </div>
         </section>
