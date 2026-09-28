@@ -15,17 +15,17 @@ const ScrollToTop = () => {
 const NotFound = lazy(() => import("./pages/NotFound.tsx"));
 const UseCasesPage = lazy(() => import("./pages/UseCasesPage.tsx"));
 const IndustriesPage = lazy(() => import("./pages/IndustriesPage.tsx"));
-//const CustomersPage = lazy(() => import("./pages/CustomersPage.tsx"));
-const CustomersPage = lazy(() => import("@/components/customer-stories/CustomerStoriesPage.tsx"));
+const CustomersPage = lazy(() => import("./pages/CustomersPage.tsx"));
 
-const PricingPage = lazy(() => import("@/components/Pricing/Pricingpage.tsx"));
+
+const PlatformPage = lazy(() => import("@/components/Platform/Platformpage.tsx"));
+const PricingPage = lazy(() => import("@/components/Pricing/PricingPage.tsx"));
+const SolutionPage = lazy(() => import("@/components/Solutions/Solutionpage.tsx")); 
 const BlogPage = lazy(() => import("./pages/BlogPage.tsx"));
 const BlogDetailPage = lazy(() => import("./pages/BlogDetailPage.tsx"));
 const DemoPage = lazy(() => import("./pages/DemoPage.tsx"));
 const NewsroomPage = lazy(() => import("./pages/NewsroomPage.tsx"));
-//const Faqpage = lazy(() => import("@/components/FAQ/Faqpage.tsx"));
-
-const FAQsPage = lazy(() => import("./pages/FAQsPage.tsx"));
+const Faqpage = lazy(() => import("@/components/FAQ/Faqpage.tsx"));
 const Toaster = lazy(() => import("@/components/ui/toaster").then((module) => ({ default: module.Toaster })));
 const SonnerToaster = lazy(() => import("@/components/ui/sonner").then((module) => ({ default: module.Toaster })));
 
@@ -54,7 +54,7 @@ const App = () => {
           </Suspense>
         ) : null}
         <ScrollToTop />
-        <RedirectHandler enabled={false} excludedPaths={[]} />
+        <RedirectHandler enabled={true} excludedPaths={["/customers"]} />
         <Suspense fallback={<RouteFallback />}>
           <Routes>
             <Route path="/home" element={<Index />} />
@@ -63,11 +63,14 @@ const App = () => {
             <Route path="/solutions/industries" element={<IndustriesPage />} />
             <Route path="/customers" element={<CustomersPage />} />
             <Route path="/pricing" element={<PricingPage />} />
+            <Route path="/platform" element={<PlatformPage />} />
+
+            <Route path="/solutions" element={<SolutionPage />} /> 
             <Route path="/resources/blog" element={<BlogPage />} />
             <Route path="/resources/blog/:documentId" element={<BlogDetailPage />} />
             <Route path="/resources/demo" element={<DemoPage />} />
             <Route path="/resources/newsroom" element={<NewsroomPage />} />
-            <Route path="/resources/faqs" element={<FAQsPage />} />
+            <Route path="/faqs" element={<Faqpage />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
