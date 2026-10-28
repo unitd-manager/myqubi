@@ -489,7 +489,7 @@ function prerenderSeoHtmlPlugin(mode: string): Plugin {
         const fromPath = normalizePathname(rule.from);
         if (!fromPath || fromPath === "/") continue;
         const toUrl = sanitizeUrlValue(rule.to);
-        if (!toUrl) continue;
+        if (!toUrl || /^https?:\/\//i.test(toUrl)) continue;
 
         const redirectHtml = baseHtml.replace(
           "</head>",
