@@ -1,61 +1,90 @@
-import qubiCube from "@/assets/qbcomp.webp";
+import type { ProofData } from "@/lib/strapi";
 
-const Proof = () => {
+interface ProofProps {
+  proof: ProofData | null;
+}
+
+const Proof = ({ proof }: ProofProps) => {
+  if (!proof || proof.Publish === false) return null;
+
+  const stories = proof.features ?? [];
+  const storyBtn = proof.featured_button;
+  const bridgeBtn = proof.bridge_button;
+
   return (
     <>
       <section className="proof section-pad" id="customers">
         <div className="site-shell">
           <div className="section-head reveal">
             <div>
-              <div className="eyebrow">Customer success</div>
-              <h2>Proof that orchestration changes the work.</h2>
+              <div className="eyebrow">{proof.eyebrow?.trim()}</div>
+              <h2>{proof.main_title?.trim()}</h2>
             </div>
           </div>
+
           <div className="story-grid reveal">
             <article className="story-main">
-              <span className="story-tag">Featured customer story</span>
-              <blockquote>One intelligent flow replaced the gaps between people, systems, and automation.</blockquote>
+              <span className="story-tag">{proof.featured_tag}</span>
+              <blockquote>{proof.featured_quote}</blockquote>
               <div className="story-foot">
                 <div className="story-metric">
-                  <strong>End-to-end</strong>
+                  <strong>{proof.featured_metric}</strong>
                 </div>
-                <a className="btn btn-light" href="/customers">Read the Stories →</a>
+                {storyBtn?.label && (
+                  <a className="btn btn-light" href={storyBtn.url}>
+                    {storyBtn.label}
+                  </a>
+                )}
               </div>
             </article>
+
             <div className="story-side">
-              <article className="story-card">
-                <div>
-                  <span className="eyebrow">Finance</span>
-                  <h3>Faster invoice approvals, fewer errors.</h3>
-                  <p>See how qubi coordinates document processing, policy checks, approvals, and ERP actions.</p>
-                </div>
-              </article>
-              <article className="story-card">
-                <div>
-                  <span className="eyebrow">Human resources</span>
-                  <h3>Onboarding without fragmented handoffs.</h3>
-                  <p>Automated document collection, access provisioning, approvals, and communication in one flow.</p>
-                </div>
-              </article>
+              {stories.map((story) => (
+                <article className="story-card" key={story.id}>
+                  <div>
+                    <span className="eyebrow">{story.story_label}</span>
+                    <h3>{story.title}</h3>
+                    <p>{story.description}</p>
+                  </div>
+                </article>
+              ))}
             </div>
           </div>
         </div>
       </section>
 
-      {/* Powered by qBotica - attached at last of Proof */}
+      {/* Powered by qBotica */}
       <div className="cs-bridge">
         <div className="cs-shell">
           <div className="cs-bridge-box">
             <div className="cs-bridge-copy">
-              <img src={qubiCube} alt="qubi" className="cs-bridge-logo" />
+              {proof.bridge_logo?.url && (
+                <img
+                  src={proof.bridge_logo.url}
+                  alt={proof.bridge_logo.alternativeText || ""}
+                  className="cs-bridge-logo"
+                />
+              )}
               <div>
-                <h3>Powered by <span className="cs-bridge-qbotica-text">qBotica</span></h3>
-                <p>Want to know more about the company behind qubi and our enterprise automation work?</p>
+                <h3>
+                  {proof.bridge_prefix}{" "}
+                  <span className="cs-bridge-qbotica-text">
+                    {proof.bridge_brand}
+                  </span>
+                </h3>
+                <p>{proof.bridge_description}</p>
               </div>
             </div>
-            <a className="cs-btn cs-btn-dark" href="https://www.qbotica.com/" target="_blank" rel="noreferrer">
-              Learn more about qBotica ↗
-            </a>
+            {bridgeBtn?.label && (
+              <a
+                className="cs-btn cs-btn-dark"
+                href={bridgeBtn.url}
+                target="_blank"
+                rel="noreferrer"
+              >
+                {bridgeBtn.label}
+              </a>
+            )}
           </div>
         </div>
       </div>

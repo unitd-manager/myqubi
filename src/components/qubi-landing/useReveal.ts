@@ -1,11 +1,9 @@
 import { useEffect, RefObject } from "react";
 
-/**
- * Watches all ".reveal" elements inside the given container ref and adds
- * the "visible" class once each one scrolls into view — same behavior as
- * the original vanilla-JS IntersectionObserver.
- */
-export function useReveal(containerRef: RefObject<HTMLElement>) {
+export function useReveal(
+  containerRef: RefObject<HTMLElement>,
+  deps: unknown[] = []
+) {
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
@@ -14,9 +12,7 @@ export function useReveal(containerRef: RefObject<HTMLElement>) {
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add("visible");
-          }
+          if (entry.isIntersecting) entry.target.classList.add("visible");
         });
       },
       { threshold: 0.12 }
@@ -24,5 +20,6 @@ export function useReveal(containerRef: RefObject<HTMLElement>) {
 
     elements.forEach((el) => observer.observe(el));
     return () => observer.disconnect();
-  }, [containerRef]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [containerRef, ...deps]);
 }

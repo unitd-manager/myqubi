@@ -1,183 +1,117 @@
+import type { EnterpriseData } from "@/lib/strapi";
+
 interface EnterpriseProps {
+  enterprise: EnterpriseData | null;
   onOpenVideo: () => void;
 }
 
-const Enterprise = ({ onOpenVideo }: EnterpriseProps) => {
-  const clips = [
-    "/clip_1.gif",
-    "/clip_2.gif",
-    "/clip_3.gif",
-    "/clip_4.gif",
-    "/clip_5.gif",
-  ];
+const splitBullets = (s?: string | null) =>
+  (s ?? "")
+    .split("|")
+    .map((b) => b.trim())
+    .filter(Boolean);
+
+const Enterprise = ({ enterprise, onOpenVideo }: EnterpriseProps) => {
+  if (!enterprise || enterprise.Publish === false) return null;
+
+  const clips = enterprise.clips ?? [];
+  const cards = enterprise.outcome_items ?? [];
 
   return (
     <section className="enterprise section-pad" id="enterprise">
       <div className="site-shell">
-
         {/* ENTERPRISE INTRO */}
         <div className="enterprise-intro reveal">
           <div>
-            <div className="eyebrow">Built for enterprise</div>
+            <div className="eyebrow">{enterprise.eyebrow?.trim()}</div>
 
             <h2>
-              Powerful enough to act.<br />
-              <em>Controlled enough to trust.</em>
+              {enterprise.main_title?.trim()}
+              <br />
+              <em>{enterprise.title_highlight}</em>
             </h2>
           </div>
 
           <div className="enterprise-intro-copy">
             <div className="confidence-strip">
-              <span>Process automation</span>
-              <span>Role-based access control</span>
-              <span>Real-time monitoring</span>
-              <span>Workflow analytics</span>
-              <span>Scalable architecture</span>
+              {enterprise.strip_items?.map((item) => (
+                <span key={item.id}>{item.text}</span>
+              ))}
             </div>
           </div>
         </div>
 
         {/* ENTERPRISE CONTENT */}
         <div className="enterprise-grid reveal">
-
           {/* LEFT SIDE */}
           <article className="confidence-main">
-
             <div>
               <span className="confidence-kicker">
-                The control layer
+                {enterprise.featured_kicker}
               </span>
-
-              <h3>
-                AI that knows when to act and when to ask.
-              </h3>
-
-              <p>
-                Set the boundaries once. qubi automates routine work, pauses
-                for approval at critical moments, enforces role-based
-                permissions, and records every decision with a complete
-                audit trail.
-              </p>
+              <h3>{enterprise.featured_title}</h3>
+              <p>{enterprise.featured_description}</p>
             </div>
 
             {/* GIF CLIPS */}
             <div className="enterprise-gif-box">
               <div className="enterprise-gif-grid">
-
                 {clips.map((clip, index) => (
                   <div
                     className={`enterprise-gif enterprise-gif-${index + 1}`}
-                    key={clip}
+                    key={clip.id ?? clip.url}
                   >
                     <img
-                      src={clip}
-                      alt={`qubi enterprise workflow ${index + 1}`}
+                      src={clip.url}
+                      alt={clip.alternativeText || `qubi enterprise workflow ${index + 1}`}
                     />
                   </div>
                 ))}
-
               </div>
             </div>
 
-            {/* WATCH DEMO BUTTON - opens the same shared demo modal as Hero */}
+            {/* WATCH DEMO BUTTON */}
             <div className="enterprise-demo-action">
               <button
                 type="button"
                 className="btn btn-orange"
                 onClick={onOpenVideo}
               >
-                ▶ Watch the Demo
+                ▶ {enterprise.demo_button_label}
               </button>
             </div>
-
           </article>
 
           {/* RIGHT SIDE */}
           <div className="confidence-side">
+            {cards.map((card) => {
+              const bullets = splitBullets(card.bullets);
+              return (
+                <article className="confidence-card" key={card.id}>
+                  <div>
+                    <div className="confidence-icon">{card.icon}</div>
+                    <h3>{card.title}</h3>
+                    <p>{card.description}</p>
+                  </div>
 
-            {/* CARD 1 */}
-            <article className="confidence-card">
-              <div>
-                <div className="confidence-icon">◈</div>
-
-                <h3>Role-based access control</h3>
-
-                <p>
-                  Ensure secure workflow management and data protection
-                  across every team and environment.
-                </p>
-              </div>
-
-              <ul>
-                <li>Granular permissions</li>
-                <li>Governed data access</li>
-                <li>Policy-aligned execution</li>
-              </ul>
-            </article>
-
-            {/* CARD 2 */}
-            <article className="confidence-card">
-              <div>
-                <div className="confidence-icon">↗</div>
-
-                <h3>System integration</h3>
-
-                <p>
-                  Connect enterprise applications, databases, APIs, and
-                  third-party platforms into one flow.
-                </p>
-              </div>
-
-              <ul>
-                <li>CRM, ERP &amp; HR systems</li>
-                <li>Support &amp; cloud services</li>
-                <li>Existing stack stays in place</li>
-              </ul>
-            </article>
-
-            {/* CARD 3 */}
-            <article className="confidence-card">
-              <div>
-                <div className="confidence-icon">▦</div>
-
-                <h3>Real-time monitoring</h3>
-
-                <p>
-                  Track workflow execution and performance through
-                  dashboards and analytics.
-                </p>
-              </div>
-
-              <div className="visibility-mini">
-                <i></i>
-                <i></i>
-                <i></i>
-                <i></i>
-                <i></i>
-              </div>
-            </article>
-
-            {/* CARD 4 */}
-            <article className="confidence-card">
-              <div>
-                <div className="confidence-icon">⤢</div>
-
-                <h3>Scalable architecture</h3>
-
-                <p>
-                  Support growing business needs with enterprise-grade
-                  scalability, start with one workflow and extend across
-                  departments.
-                </p>
-              </div>
-
-              <ul>
-                <li>Enterprise-grade scale</li>
-                <li>Reusable workflow patterns</li>
-                <li>Cross-functional teams</li>
-              </ul>
-            </article>
-
+                  {bullets.length > 0 ? (
+                    <ul>
+                      {bullets.map((b, i) => (
+                        <li key={i}>{b}</li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <div className="visibility-mini">
+                      <i></i>
+                      <i></i>
+                      <i></i>
+                      <i></i>
+                      <i></i>
+                    </div>
+                  )}
+                </article>
+              );
+            })}
           </div>
         </div>
       </div>

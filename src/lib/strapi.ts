@@ -1,371 +1,201 @@
-// Strapi v5 REST API client using shared Axios instance
-import { api, getStrapiMediaUrl } from '@/lib/api';
+const BASE = import.meta.env.VITE_STRAPI_URL as string;
 
-// ─── Types ───────────────────────────────────────────────────────────────────
-
-export interface StrapiMeta {
-  pagination?: { page: number; pageSize: number; pageCount: number; total: number };
-}
-
-export interface StrapiResponse<T> {
-  data: T;
-  meta: StrapiMeta;
-}
-
-export interface StrapiItem<A> {
+export interface StrapiButton {
   id: number;
-  attributes: A;
-}
-
-export interface StrapiMediaFormat {
-  ext?: string;
+  label: string;
   url: string;
-  hash?: string;
-  mime?: string;
-  name?: string;
-  path?: string | null;
-  size?: number;
-  width?: number;
-  height?: number;
-  sizeInBytes?: number;
+  Publish: boolean | null;
 }
 
-export interface StrapiMediaAsset {
-  id: number;
+export interface StrapiImage {
+  id?: number;
   url: string;
   alternativeText?: string | null;
-  width?: number;
-  height?: number;
-  formats?: Record<string, StrapiMediaFormat> | null;
 }
 
-// Content-type attribute shapes
-export interface BlogAttributes {
-  documentId?: string | null;
-  title: string;
-  description: string | null;
-  author: string | null;
-  date: string | null;
-  category_id: number | null;
-  flag: boolean | null;
-  meta_title: string | null;
-  meta_description: string | null;
-  meta_keyword: string | null;
-  us_title: string | null;
-  us_description: string | null;
-  published: boolean | null;
-  images: StrapiMediaAsset[] | null;
+/* ---------------- HEADER (single type) ---------------- */
+export interface HeaderData {
+  logo?: StrapiImage | null;
+  powered_by_label?: string;
+  powered_by_logo?: StrapiImage | null;
+  nav_links?: {
+    id: number;
+    label: string;
+    url: string;
+    Publish?: boolean | null;
+  }[];
+  watch_button_label?: string;
+  cta_label?: string;
+  cta_url?: string;
 }
 
-export interface SectionAttributes {
-  section_title: string;
-  section_type: string | null;
-  display_type: string | null;
-  description: string | null;
-  sort_order: number | null;
-  published: boolean | null;
-  external_link: string | null;
-  internal_link: string | null;
-  template: string | null;
-  show_in_nav: boolean | null;
-  images: StrapiMediaAsset[] | null;
+/* ---------------- HERO (+ Ticker) ---------------- */
+export interface HeroData {
+  badge_text?: string;
+  main_title?: string;
+  title_highlight?: string;
+  description?: string;
+  trust_text?: string;
+  Publish?: boolean | null;
+  button?: StrapiButton | null;
+  secondary_button?: StrapiButton | null;
+  window_title?: string;
+  sidebar_logo?: string;
+  sidebar_items?: { id: number; label: string; is_active?: boolean | null }[];
+  workspace_title?: string;
+  workspace_subtitle?: string;
+  workspace_status?: string;
+  flow_nodes?: { id: number; title: string; description: string }[];
+  ticker_items?: { id: number; text: string }[];
+  video_modal_title?: string;
+  __component: string;
 }
 
-export interface CategoryAttributes {
-  section_id: number | null;
-  category_title: string;
-  category_type: string | null;
-  description: string | null;
-  description_short: string | null;
-  display_type: string | null;
-  template: string | null;
-  sort_order: number | null;
-  published: boolean | null;
-  external_link: string | null;
-  internal_link: string | null;
-  images: StrapiMediaAsset[] | null;
+/* ---------------- WHY (Problem) ---------------- */
+export interface ProblemData {
+  eyebrow?: string;
+  main_title?: string;
+  title_highlight?: string;
+  description?: string;
+  conclusion_text?: string;
+  Publish?: boolean | null;
+  problem_items?: { id: number; title: string }[];
+  outcome_cards?: { id: number; title: string; description: string }[];
+  __component: string;
 }
 
-export interface ContentAttributes {
-  section_id: number | null;
-  category_id: number | null;
-  title: string;
-  show_title: boolean | null;
-  type: string | null;
-  content_type: string | null;
-  description_short: string | null;
-  description: string | null;
-  sort_order: number | null;
-  published: boolean | null;
-  content_date: string | null;
-  external_link: string | null;
-  favourite: boolean | null;
-  images: StrapiMediaAsset[] | null;
+/* ---------------- HOW (Capabilities block) ---------------- */
+export interface HowData {
+  eyebrow?: string;
+  main_title?: string;
+  Publish?: boolean | null;
+  capability_items?: {
+    id: number;
+    icon?: string;
+    title?: string;
+    description?: string;
+  }[];
+  __component: string;
 }
 
-export interface NavbarLink {
-  label: string;
-  href: string;
+/* ---------------- USE CASES ---------------- */
+export interface UseCasesData {
+  eyebrow?: string;
+  main_title?: string;
+  scenario_label?: string;
+  core_logo?: StrapiImage | null;
+  Publish?: boolean | null;
+  use_case_items?: {
+    id: number;
+    tab_key?: string;
+    title?: string;
+    panel_title?: string;
+    description?: string;
+    scenario?: string;
+    chips?: string;
+  }[];
+  __component: string;
 }
 
-export interface NavbarSectionData {
-  title: string;
-  items: NavbarLink[];
-  href?: string;
+/* ---------------- ENTERPRISE (Outcomes block) ---------------- */
+export interface EnterpriseData {
+  eyebrow?: string;
+  main_title?: string;
+  title_highlight?: string;
+  strip_items?: { id: number; text: string }[];
+  featured_kicker?: string;
+  featured_title?: string;
+  featured_description?: string;
+  demo_button_label?: string;
+  clips?: StrapiImage[] | null;
+  Publish?: boolean | null;
+  outcome_items?: {
+    id: number;
+    icon?: string;
+    title?: string;
+    description?: string;
+    bullets?: string | null;
+  }[];
+  __component: string;
 }
 
-export interface EnquiryPayload {
-  first_name: string;
-  last_name?: string;
-  email: string;
-  company?: string;
-  phone?: string;
-  subject?: string;
-  comments?: string;
-  enquiry_type?: string;
-  product?: string;
+/* ---------------- PROOF (Analytics block) ---------------- */
+export interface ProofData {
+  eyebrow?: string;
+  main_title?: string;
+  featured_tag?: string;
+  featured_quote?: string;
+  featured_metric?: string;
+  featured_button?: StrapiButton | null;
+  bridge_logo?: StrapiImage | null;
+  bridge_prefix?: string;
+  bridge_brand?: string;
+  bridge_description?: string;
+  bridge_button?: StrapiButton | null;
+  Publish?: boolean | null;
+  features?: {
+    id: number;
+    story_label?: string;
+    title?: string;
+    description?: string;
+  }[];
+  __component: string;
 }
 
-export interface SettingAttributes {
-  key_text: string;
-  value: string | null;
-  group_name: string | null;
-  value_type: string | null;
-  published: boolean | null;
+/* ---------------- CTA (Final CTA block) ---------------- */
+export interface CtaData {
+  eyebrow?: string;
+  main_title?: string;
+  title_highlight?: string;
+  description?: string;
+  Publish?: boolean | null;
+  button?: StrapiButton | null;
+  secondary_button?: StrapiButton | null;
+  __component: string;
 }
 
-export interface FaqAttributes {
-  question: string;
-  answer: string;
-  category: string | null;
-  sort_order: number | null;
-  published: boolean | null;
+/* ---------------- Generic fetch ---------------- */
+async function getBlock<T extends { __component: string }>(
+  uid: string
+): Promise<T | undefined> {
+  const url =
+    `${BASE}/api/pages?filters[slug]=home` +
+    `&populate[pageBuilder][on][${uid}][populate]=*`;
+
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`Strapi error ${res.status}`);
+
+  const json = await res.json();
+  const blocks: T[] = json.data?.[0]?.pageBuilder ?? [];
+  return blocks.find((b) => b.__component === uid);
 }
 
-// ─── Helpers ─────────────────────────────────────────────────────────────────
-
-function buildQS(params: Record<string, string | number | boolean | undefined>) {
-  const parts: string[] = [];
-  for (const [k, v] of Object.entries(params)) {
-    if (v !== undefined) parts.push(`${encodeURIComponent(k)}=${encodeURIComponent(String(v))}`);
-  }
-  return parts.length ? `?${parts.join("&")}` : "";
+/* ---------------- Header fetch ---------------- */
+export async function getHeader(): Promise<HeaderData | null> {
+  const res = await fetch(`${BASE}/api/header?populate=*`);
+  if (!res.ok) throw new Error(`Strapi error ${res.status}`);
+  const json = await res.json();
+  return json.data ?? null;
 }
 
-async function strapiGet<T>(path: string, qs = ""): Promise<T> {
-  const res = await api.get(`${path}${qs}`);
-  return res.data as T;
-}
+/* ---------------- Section fetchers ---------------- */
+export const getHero = () =>
+  getBlock<HeroData>("acf-sections.qubi-home-hero");
 
-async function strapiPost<T>(path: string, body: unknown): Promise<T> {
-  const res = await api.post(path, { data: body });
-  return res.data as T;
-}
+export const getProblem = () =>
+  getBlock<ProblemData>("acf-sections.qubi-problem-section");
 
-// ─── Strapi v5 → v4 normalizer ───────────────────────────────────────────────
-// Strapi v5 REST API returns flat objects; normalize to { id, attributes } so
-// all page mapping functions continue working without changes.
-function normalizeItem<A>(raw: Record<string, unknown>): StrapiItem<A> {
-  const { id, ...rest } = raw;
-  return { id: id as number, attributes: rest as A };
-}
+export const getHow = () =>
+  getBlock<HowData>("acf-sections.qubi-capabilities-section");
 
-function normalizeList<A>(raw: unknown): StrapiResponse<StrapiItem<A>[]> {
-  const r = raw as { data: Record<string, unknown>[]; meta: StrapiMeta };
-  return { data: (r.data ?? []).map((item) => normalizeItem<A>(item)), meta: r.meta ?? {} };
-}
+export const getUseCases = () =>
+  getBlock<UseCasesData>("acf-sections.qubi-use-cases-section");
 
-function normalizeOne<A>(raw: unknown): StrapiResponse<StrapiItem<A>> {
-  const r = raw as { data: Record<string, unknown>; meta: StrapiMeta };
-  return { data: normalizeItem<A>(r.data), meta: r.meta ?? {} };
-}
+export const getEnterprise = () =>
+  getBlock<EnterpriseData>("acf-sections.qubi-outcomes-section");
 
-/** Strip basic HTML/richtext tags for plain-text display */
-export function stripHtml(html: string | null | undefined): string {
-  if (!html) return "";
-  return html.replace(/<[^>]+>/g, "").replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&nbsp;/g, " ").trim();
-}
+export const getProof = () =>
+  getBlock<ProofData>("acf-sections.qubi-analytics-section");
 
-/** Resolve a Strapi media URL to an absolute URL */
-export function mediaUrl(url: string | null | undefined): string {
-  return getStrapiMediaUrl(url);
-}
-
-// ─── Blog ─────────────────────────────────────────────────────────────────────
-
-export async function getBlogs(options?: { featured?: boolean; limit?: number }) {
-  const qs =
-    "?populate=images" +
-    "&filters[published][$eq]=true" +
-    (options?.featured !== undefined ? `&filters[flag][$eq]=${options.featured}` : "") +
-    "&sort[0]=date:desc" +
-    (options?.limit ? `&pagination[pageSize]=${options.limit}` : "&pagination[pageSize]=50");
-  const raw = await strapiGet<unknown>("/blogs", qs);
-  return normalizeList<BlogAttributes>(raw);
-}
-
-export async function getBlogById(id: number) {
-  const raw = await strapiGet<unknown>(`/blogs/${id}?populate=images&filters[published][$eq]=true`);
-  return normalizeOne<BlogAttributes>(raw);
-}
-
-export async function getBlogByDocumentId(documentId: string) {
-  const raw = await strapiGet<unknown>(`/blogs/${encodeURIComponent(documentId)}?populate=images&filters[published][$eq]=true`);
-  return normalizeOne<BlogAttributes>(raw);
-}
-
-// ─── Sections ────────────────────────────────────────────────────────────────
-
-export async function getSections(sectionType?: string) {
-  const filter = sectionType ? `&filters[section_type][$eq]=${encodeURIComponent(sectionType)}` : "";
-  const raw = await strapiGet<unknown>(
-    "/sections",
-    `?populate=images&filters[published][$eq]=true${filter}&sort[0]=sort_order:asc&pagination[pageSize]=100`
-  );
-  return normalizeList<SectionAttributes>(raw);
-}
-
-// ─── Categories ──────────────────────────────────────────────────────────────
-
-export async function getCategories(options?: { sectionId?: number; categoryType?: string }) {
-  let filter = "";
-  if (options?.sectionId) filter += `&filters[section_id][$eq]=${options.sectionId}`;
-  if (options?.categoryType) filter += `&filters[category_type][$eq]=${encodeURIComponent(options.categoryType)}`;
-  const raw = await strapiGet<unknown>(
-    "/categories",
-    `?populate=images&filters[published][$eq]=true${filter}&sort[0]=sort_order:asc&pagination[pageSize]=100`
-  );
-  return normalizeList<CategoryAttributes>(raw);
-}
-
-export async function getNavbarData(): Promise<NavbarSectionData[]> {
-  const [sectionsRaw, categoriesRaw] = await Promise.all([
-    strapiGet<unknown>(
-      "/sections",
-      "?filters[published][$eq]=true&filters[show_in_nav][$eq]=true&sort[0]=sort_order:asc&pagination[pageSize]=100"
-    ),
-    strapiGet<unknown>(
-      "/categories",
-      "?filters[published][$eq]=true&filters[show_in_nav][$eq]=true&sort[0]=sort_order:asc&pagination[pageSize]=100"
-    ),
-  ]);
-
-  const sections = normalizeList<SectionAttributes>(sectionsRaw).data;
-  const categories = normalizeList<CategoryAttributes>(categoriesRaw).data;
-  const itemsBySection = new Map<number, NavbarLink[]>();
-
-  for (const category of categories) {
-    const sectionId = category.attributes.section_id;
-    const href = category.attributes.internal_link || category.attributes.external_link;
-    if (!sectionId || !href) continue;
-
-    const items = itemsBySection.get(sectionId) ?? [];
-    items.push({
-      label: category.attributes.category_title,
-      href,
-    });
-    itemsBySection.set(sectionId, items);
-  }
-
-  return sections.reduce<NavbarSectionData[]>((acc, section) => {
-    const items = itemsBySection.get(section.id) ?? [];
-    if (items.length > 0) {
-      acc.push({
-        title: section.attributes.section_title,
-        items,
-      });
-      return acc;
-    }
-
-    const href = section.attributes.internal_link || section.attributes.external_link;
-    if (href) {
-      acc.push({
-        title: section.attributes.section_title,
-        items: [],
-        href,
-      });
-    }
-
-    return acc;
-  }, []);
-}
-
-// ─── Contents ────────────────────────────────────────────────────────────────
-
-export async function getContents(options?: {
-  sectionId?: number;
-  categoryId?: number;
-  contentType?: string;
-  type?: string;
-  limit?: number;
-}) {
-  let filter = "";
-  if (options?.sectionId) filter += `&filters[section_id][$eq]=${options.sectionId}`;
-  if (options?.categoryId) filter += `&filters[category_id][$eq]=${options.categoryId}`;
-  if (options?.contentType) filter += `&filters[content_type][$eq]=${encodeURIComponent(options.contentType)}`;
-  if (options?.type) filter += `&filters[type][$eq]=${encodeURIComponent(options.type)}`;
-  const limit = options?.limit ?? 50;
-  const raw = await strapiGet<unknown>(
-    "/contents",
-    `?populate=images&filters[published][$eq]=true${filter}&sort[0]=sort_order:asc&pagination[pageSize]=${limit}`
-  );
-  return normalizeList<ContentAttributes>(raw);
-}
-
-// ─── Settings ─────────────────────────────────────────────────────────────────
-
-export async function getSettings(groupName?: string) {
-  const filter = groupName ? `&filters[group_name][$eq]=${encodeURIComponent(groupName)}` : "";
-  const raw = await strapiGet<unknown>(
-    "/settings",
-    `?filters[published][$eq]=true${filter}`
-  );
-  return normalizeList<SettingAttributes>(raw);
-}
-
-export async function getSettingByKey(key: string) {
-  const raw = await strapiGet<unknown>(
-    "/settings",
-    `?filters[key_text][$eq]=${encodeURIComponent(key)}&filters[published][$eq]=true`
-  );
-  return normalizeList<SettingAttributes>(raw);
-}
-
-// ─── Home-page helpers ───────────────────────────────────────────────────────
-
-/** Fetch the first published section of a given type, plus its categories */
-export async function getHomeSectionWithItems(sectionType: string, categoryType: string) {
-  const sectionResp = await getSections(sectionType);
-  const section = sectionResp.data[0] ?? null;
-  if (!section) return { section: null, items: [] as StrapiItem<CategoryAttributes>[] };
-  const itemsResp = await getCategories({ sectionId: section.id, categoryType });
-  return { section, items: itemsResp.data };
-}
-
-/** Fetch only the first published section of a given type */
-export async function getHomeSection(sectionType: string) {
-  const resp = await getSections(sectionType);
-  return resp.data[0] ?? null;
-}
-
-// ─── Enquiries ────────────────────────────────────────────────────────────────
-
-export async function createEnquiry(payload: EnquiryPayload) {
-  return strapiPost<StrapiResponse<StrapiItem<EnquiryPayload>>>("/enquiries", {
-    ...payload,
-    creation_date: new Date().toISOString(),
-    status: "new",
-  });
-}
-
-// ─── FAQs ─────────────────────────────────────────────────────────────────────
-
-export async function getFaqs(options?: { category?: string }) {
-  let filter = "";
-  if (options?.category) filter += `&filters[category][$eq]=${encodeURIComponent(options.category)}`;
-  const raw = await strapiGet<unknown>(
-    "/faqs",
-    `?filters[published][$eq]=true${filter}&sort[0]=sort_order:asc&pagination[pageSize]=100`
-  );
-  return normalizeList<FaqAttributes>(raw);
-}
+export const getCta = () =>
+  getBlock<CtaData>("acf-sections.qubi-final-cta-section");

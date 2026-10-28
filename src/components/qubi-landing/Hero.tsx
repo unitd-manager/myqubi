@@ -1,42 +1,39 @@
+import type { HeroData } from "../../lib/strapi";
+
 interface HeroProps {
+  hero: HeroData | null;
   onOpenVideo: () => void;
 }
 
-const Hero = ({ onOpenVideo }: HeroProps) => {
+const Hero = ({ hero, onOpenVideo }: HeroProps) => {
+  if (!hero || hero.Publish === false) return null;
+
+  const cta = hero.button;
+  const demo = hero.secondary_button;
+
   return (
     <header className="hero">
       <div className="site-shell hero-grid">
-        
         <div className="hero-copy reveal">
-          <div className="eyebrow">Agentic automation platform</div>
+          <div className="eyebrow">{hero.badge_text?.trim()}</div>
 
           <h1>
-            Orchestrate AI agents, bots, systems &amp; <em>people.</em>
+            {hero.main_title?.trim()} <em>{hero.title_highlight}</em>
           </h1>
 
-          <p>
-            A unified platform for designing, deploying, and managing intelligent
-            workflows powered by AI agents, automation, human input, and enterprise
-            integrations moving work from request to resolution without the usual
-            handoffs and bottlenecks.
-          </p>
+          <p>{hero.description}</p>
 
           <div className="hero-actions">
-            <button
-              className="btn btn-orange"
-              onClick={onOpenVideo}
-            >
-              ▶ Watch the Quick Demo
-            </button>
-
-            <a
-              className="btn btn-light"
-              href="https://meetings.hubspot.com/enterprisedemo/qubi-consultation"
-              target="_blank"
-              rel="noreferrer"
-            >
-              Book a demo ↗
-            </a>
+            {demo?.Publish && (
+              <button className="btn btn-orange" onClick={onOpenVideo}>
+                ▶ {demo.label}
+              </button>
+            )}
+            {cta?.Publish && (
+              <a className="btn btn-light" href={cta.url} target="_blank" rel="noreferrer">
+                {cta.label} ↗
+              </a>
+            )}
           </div>
 
           <div className="micro-proof">
@@ -45,150 +42,73 @@ const Hero = ({ onOpenVideo }: HeroProps) => {
               <span></span>
               <span></span>
             </div>
-
-            Built for operations, finance, IT, and transformation teams.
+            {hero.trust_text}
           </div>
         </div>
 
         <div className="demo-stage reveal">
-          
           <div className="orbit one"></div>
           <div className="orbit two"></div>
 
-          {/* Product Window */}
           <div className="product-window">
-            
             <div className="window-top">
               <div className="window-dots">
                 <span></span>
                 <span></span>
                 <span></span>
               </div>
-
-              <div className="window-title">
-                qubi orchestration workspace
-              </div>
-
+              <div className="window-title">{hero.window_title}</div>
               <div style={{ width: 44 }}></div>
             </div>
 
             <div className="window-body">
-              
               <aside className="sidebar">
-                <div className="side-logo">qubi</div>
-
-                <div className="side-item active">
-                  ◉ Orchestrations
-                </div>
-
-                <div className="side-item">
-                  ⌁ Agents
-                </div>
-
-                <div className="side-item">
-                  ◇ Workflows
-                </div>
-
-                <div className="side-item">
-                  ↗ Integrations
-                </div>
-
-                <div className="side-item">
-                  ▦ Analytics
-                </div>
-
-                <div className="side-item">
-                  ♙ Governance
-                </div>
+                <div className="side-logo">{hero.sidebar_logo}</div>
+                {hero.sidebar_items?.map((item) => (
+                  <div
+                    key={item.id}
+                    className={`side-item${item.is_active ? " active" : ""}`}
+                  >
+                    {item.label}
+                  </div>
+                ))}
               </aside>
 
               <div className="workspace">
-                
                 <div className="workspace-head">
                   <div>
-                    <h3>Customer onboarding</h3>
-                    <p>End-to-end intelligent workflow</p>
+                    <h3>{hero.workspace_title}</h3>
+                    <p>{hero.workspace_subtitle}</p>
                   </div>
-
-                  <div className="status">
-                    ● Running
-                  </div>
+                  <div className="status">{hero.workspace_status}</div>
                 </div>
 
                 <div className="flow-canvas">
-                  
                   <div className="flow-line line-a"></div>
                   <div className="flow-line line-b"></div>
                   <div className="flow-line line-c"></div>
                   <div className="flow-line line-d"></div>
 
-                  <div className="flow-node node-1">
-                    <strong>
-                      <b></b>
-                      Request received
-                    </strong>
-                    <span>
-                      Capture context and intent
-                    </span>
-                  </div>
-
-                  <div className="flow-node node-2">
-                    <strong>
-                      <b></b>
-                      AI agent
-                    </strong>
-                    <span>
-                      Reason across knowledge
-                    </span>
-                  </div>
-
-                  <div className="flow-node node-3">
-                    <strong>
-                      <b></b>
-                      System action
-                    </strong>
-                    <span>
-                      Create records and tasks
-                    </span>
-                  </div>
-
-                  <div className="flow-node node-4">
-                    <strong>
-                      <b></b>
-                      Complete
-                    </strong>
-                    <span>
-                      Notify and report outcome
-                    </span>
-                  </div>
-
-                  <div className="flow-node node-5">
-                    <strong>
-                      <b></b>
-                      Human review
-                    </strong>
-                    <span>
-                      Approve high-impact step
-                    </span>
-                  </div>
-
+                  {hero.flow_nodes?.map((node, i) => (
+                    <div key={node.id} className={`flow-node node-${i + 1}`}>
+                      <strong>
+                        <b></b>
+                        {node.title}
+                      </strong>
+                      <span>{node.description}</span>
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>
 
-            {/* Video trigger */}
-            <div
-              className="play-overlay"
-              onClick={onOpenVideo}
-            >
-              <div className="play-button">
-                ▶
+            {demo?.Publish && (
+              <div className="play-overlay" onClick={onOpenVideo}>
+                <div className="play-button">▶</div>
               </div>
-            </div>
-
+            )}
           </div>
         </div>
-
       </div>
     </header>
   );

@@ -1,31 +1,35 @@
 import { useEffect, useRef } from "react";
-import demoVideo from "@/assets/demo.mp4";
 
 interface VideoModalProps {
   open: boolean;
   onClose: () => void;
+  src?: string;   // Strapi: hero.secondary_button.url
+  title?: string; // Strapi: hero.video_modal_title
 }
 
-const VideoModal = ({ open, onClose }: VideoModalProps) => {
+const VideoModal = ({ open, onClose, src, title }: VideoModalProps) => {
   const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
     if (!open) return;
     document.body.style.overflow = "hidden";
+
     const video = videoRef.current;
     if (video) {
-      video.currentTime = 0; // always start fresh, ignore any cached/resumed position
-      video.play();
+      video.currentTime = 0; // always start fresh
+      video.play().catch(() => {}); // autoplay block aanaalum error varaadhu
     }
+
     const handleKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
     };
     document.addEventListener("keydown", handleKey);
+
     return () => {
       document.body.style.overflow = "";
       if (video) {
         video.pause();
-        video.currentTime = 0; // reset on close too, so it's ready at 0:00 next time
+        video.currentTime = 0; // close-la reset
       }
       document.removeEventListener("keydown", handleKey);
     };
@@ -36,22 +40,29 @@ const VideoModal = ({ open, onClose }: VideoModalProps) => {
       className={`modal${open ? " open" : ""}`}
       role="dialog"
       aria-modal="true"
-      aria-label="qubi product demo"
-      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+      aria-label={title}
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
     >
       <div className="modal-card">
         <div className="modal-head">
-          <strong>qubi platform — full demo</strong>
-          <button className="modal-close" aria-label="Close video" onClick={onClose}>×</button>
+          <strong>{title}</strong>
+          <button className="modal-close" aria-label="Close video" onClick={onClose}>
+            ×
+          </button>
         </div>
+
         <div className="video-placeholder" style={{ padding: 0 }}>
-          <video
-            ref={videoRef}
-            style={{ width: "100%", aspectRatio: "16/9", display: "block" }}
-            controls
-          >
-            <source src={demoVideo} type="video/mp4" />
-          </video>
+          {src && (
+            <video
+              ref={videoRef}
+              key={src}
+              src={src}
+              style={{ width: "100%", aspectRatio: "16/9", display: "block" }}
+              controls
+            />
+          )}
         </div>
       </div>
     </div>
