@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import "./qubi-landing.css";
-import Nav from "./Nav";
+import { useOutletContext } from "react-router-dom";
 import Hero from "./Hero";
 import Ticker from "./Ticker";
 import Why from "./Why";
@@ -9,8 +8,6 @@ import UseCases from "./UseCases";
 import Enterprise from "./Enterprise";
 import Proof from "./Proof";
 import Cta from "./Cta";
-import QubiFooter from "./QubiFooter";
-import VideoModal from "./VideoModal";
 import { useReveal } from "./useReveal";
 import {
   getHero,
@@ -30,7 +27,8 @@ import {
 } from "@/lib/strapi";
 
 const QubiLandingPage = () => {
-  const [videoOpen, setVideoOpen] = useState(false);
+  const { openVideo } = useOutletContext<{ openVideo: () => void }>();
+
   const [hero, setHero] = useState<HeroData | null>(null);
   const [problem, setProblem] = useState<ProblemData | null>(null);
   const [how, setHow] = useState<HowData | null>(null);
@@ -52,13 +50,8 @@ const QubiLandingPage = () => {
 
   useReveal(containerRef, [hero, problem, how, useCases, enterprise, proof, cta]);
 
-  const openVideo = () => setVideoOpen(true);
-  const closeVideo = () => setVideoOpen(false);
-
   return (
-    <div className="qubi-landing" ref={containerRef}>
-      <Nav onOpenVideo={openVideo} />
-
+    <div ref={containerRef}>
       <main id="top">
         <Hero hero={hero} onOpenVideo={openVideo} />
         <Ticker items={hero?.ticker_items} />
@@ -69,14 +62,6 @@ const QubiLandingPage = () => {
         <Proof proof={proof} />
         <Cta cta={cta} onOpenVideo={openVideo} />
       </main>
-
-      <QubiFooter />
-      <VideoModal
-        open={videoOpen}
-        onClose={closeVideo}
-        src={hero?.secondary_button?.url}
-        title={hero?.video_modal_title}
-      />
     </div>
   );
 };

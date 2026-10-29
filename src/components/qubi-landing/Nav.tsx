@@ -13,7 +13,9 @@ const Nav = ({ header, onOpenVideo }: NavProps) => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const links = (header?.nav_links ?? []).filter((l) => l.Publish !== false);
+  const links = (header?.nav_links ?? []).filter(
+    (l) => (l.publish ?? l.Publish) !== false
+  );
 
   useEffect(() => {
     const currentPath = location.pathname;

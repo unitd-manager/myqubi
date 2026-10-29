@@ -2,6 +2,7 @@ import { lazy, Suspense, useEffect, useState } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
 import { RedirectHandler } from "@/components/RedirectHandler";
+import SiteLayout from "@/components/qubi-landing/SiteLayout";
 import Index from "./pages/Index.tsx";
 
 const ScrollToTop = () => {
@@ -16,18 +17,16 @@ const NotFound = lazy(() => import("./pages/NotFound.tsx"));
 const UseCasesPage = lazy(() => import("./pages/UseCasesPage.tsx"));
 const IndustriesPage = lazy(() => import("./pages/IndustriesPage.tsx"));
 const CustomersPage = lazy(() => import("./pages/CustomersPage.tsx"));
-
-
 const PlatformPage = lazy(() => import("@/components/Platform/Platformpage.tsx"));
 const PricingPage = lazy(() => import("@/components/Pricing/PricingPage.tsx"));
-const SolutionPage = lazy(() => import("@/components/Solutions/Solutionpage.tsx")); 
+const SolutionPage = lazy(() => import("@/components/Solutions/Solutionpage.tsx"));
 const BlogPage = lazy(() => import("./pages/BlogPage.tsx"));
 const BlogDetailPage = lazy(() => import("./pages/BlogDetailPage.tsx"));
 const DemoPage = lazy(() => import("./pages/DemoPage.tsx"));
 const NewsroomPage = lazy(() => import("./pages/NewsroomPage.tsx"));
 const Faqpage = lazy(() => import("@/components/FAQ/Faqpage.tsx"));
-const Toaster = lazy(() => import("@/components/ui/toaster").then((module) => ({ default: module.Toaster })));
-const SonnerToaster = lazy(() => import("@/components/ui/sonner").then((module) => ({ default: module.Toaster })));
+const Toaster = lazy(() => import("@/components/ui/toaster").then((m) => ({ default: m.Toaster })));
+const SonnerToaster = lazy(() => import("@/components/ui/sonner").then((m) => ({ default: m.Toaster })));
 
 const queryClient = new QueryClient();
 
@@ -37,10 +36,11 @@ const App = () => {
   const [showDeferredUi, setShowDeferredUi] = useState(false);
 
   useEffect(() => {
-    const schedule = window.requestIdleCallback ?? ((callback: IdleRequestCallback) => window.setTimeout(callback, 1));
+    const schedule =
+      window.requestIdleCallback ??
+      ((callback: IdleRequestCallback) => window.setTimeout(callback, 1));
     const cancel = window.cancelIdleCallback ?? window.clearTimeout;
     const handle = schedule(() => setShowDeferredUi(true));
-
     return () => cancel(handle);
   }, []);
 
@@ -57,21 +57,21 @@ const App = () => {
         <RedirectHandler enabled={true} excludedPaths={["/customers"]} />
         <Suspense fallback={<RouteFallback />}>
           <Routes>
-            <Route path="/home" element={<Index />} />
-            <Route path="/" element={<Index />} />
-            <Route path="/solutions/use-cases" element={<UseCasesPage />} />
-            <Route path="/solutions/industries" element={<IndustriesPage />} />
-            <Route path="/customers" element={<CustomersPage />} />
-            <Route path="/pricing" element={<PricingPage />} />
-            <Route path="/platform" element={<PlatformPage />} />
-
-            <Route path="/solutions" element={<SolutionPage />} /> 
-            <Route path="/resources/blog" element={<BlogPage />} />
-            <Route path="/resources/blog/:documentId" element={<BlogDetailPage />} />
-            <Route path="/resources/demo" element={<DemoPage />} />
-            <Route path="/resources/newsroom" element={<NewsroomPage />} />
-            <Route path="/faqs" element={<Faqpage />} />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+            <Route element={<SiteLayout />}>
+              <Route path="/home" element={<Index />} />
+              <Route path="/" element={<Index />} />
+              <Route path="/solutions/use-cases" element={<UseCasesPage />} />
+              <Route path="/solutions/industries" element={<IndustriesPage />} />
+              <Route path="/customers" element={<CustomersPage />} />
+              <Route path="/pricing" element={<PricingPage />} />
+              <Route path="/platform" element={<PlatformPage />} />
+              <Route path="/solutions" element={<SolutionPage />} />
+              <Route path="/resources/blog" element={<BlogPage />} />
+              <Route path="/resources/blog/:documentId" element={<BlogDetailPage />} />
+              <Route path="/resources/demo" element={<DemoPage />} />
+              <Route path="/resources/newsroom" element={<NewsroomPage />} />
+              <Route path="/faqs" element={<Faqpage />} />
+            </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Suspense>

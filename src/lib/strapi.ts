@@ -14,19 +14,47 @@ export interface StrapiImage {
 }
 
 /* ---------------- HEADER (single type) ---------------- */
-export interface HeaderData {
-  logo?: StrapiImage | null;
-  powered_by_label?: string;
-  powered_by_logo?: StrapiImage | null;
-  nav_links?: {
+export interface NavLink {
+  id: number;
+  label: string;
+  url: string;
+  publish?: boolean | null; // Strapi API key: "publish"
+  Publish?: boolean | null;
+  children?: {
     id: number;
     label: string;
     url: string;
     Publish?: boolean | null;
   }[];
+}
+
+export interface HeaderData {
+  logo?: StrapiImage | null;
+  powered_by_label?: string;
+  powered_by_logo?: StrapiImage | null;
+  nav_links?: NavLink[];
   watch_button_label?: string;
   cta_label?: string;
   cta_url?: string;
+}
+
+/* ---------------- FOOTER (single type) ---------------- */
+export interface FooterLink {
+  id: number;
+  label: string;
+  url: string;
+  Publish?: boolean | null;
+}
+
+export interface FooterData {
+  copyright_text?: string;
+  publish?: boolean | null;
+  logo?: StrapiImage | null;
+  powered_by_label?: string;
+  powered_by_logo?: StrapiImage | null;
+  tagline?: string;
+  columns?: { id: number; title?: string; links?: FooterLink[] }[];
+  legal_links?: FooterLink[];
 }
 
 /* ---------------- HERO (+ Ticker) ---------------- */
@@ -156,10 +184,11 @@ export interface CtaData {
 
 /* ---------------- Generic fetch ---------------- */
 async function getBlock<T extends { __component: string }>(
-  uid: string
+  uid: string,
+  slug = "home"
 ): Promise<T | undefined> {
   const url =
-    `${BASE}/api/pages?filters[slug]=home` +
+    `${BASE}/api/pages?filters[slug]=${slug}` +
     `&populate[pageBuilder][on][${uid}][populate]=*`;
 
   const res = await fetch(url);
@@ -172,7 +201,28 @@ async function getBlock<T extends { __component: string }>(
 
 /* ---------------- Header fetch ---------------- */
 export async function getHeader(): Promise<HeaderData | null> {
-  const res = await fetch(`${BASE}/api/header?populate=*`);
+  const url =
+    `${BASE}/api/header` +
+    `?populate[logo]=true` +
+    `&populate[powered_by_logo]=true` +
+    `&populate[nav_links][populate][children]=true`;
+
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`Strapi error ${res.status}`);
+  const json = await res.json();
+  return json.data ?? null;
+}
+
+/* ---------------- Footer fetch ---------------- */
+export async function getFooter(): Promise<FooterData | null> {
+  const url =
+    `${BASE}/api/footer` +
+    `?populate[logo]=true` +
+    `&populate[powered_by_logo]=true` +
+    `&populate[columns][populate][links]=true` +
+    `&populate[legal_links]=true`;
+
+  const res = await fetch(url);
   if (!res.ok) throw new Error(`Strapi error ${res.status}`);
   const json = await res.json();
   return json.data ?? null;
