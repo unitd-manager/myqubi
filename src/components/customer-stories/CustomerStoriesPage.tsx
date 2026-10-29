@@ -1,30 +1,30 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "./CustomerStories.css";
-import "../qubi-landing/qubi-landing.css";
-import Nav from "../qubi-landing/Nav";
-import QubiFooter from "../qubi-landing/QubiFooter";
-import VideoModal from "../qubi-landing/VideoModal";
 import Hero from "./Hero";
 import StoryExplorer from "./StoryExplorer";
 import WhyQubi from "./WhyQubi";
-//import QboticaBridge from "./QboticaBridge";
 import Cta from "./Cta";
+import { getCustomersPage, type CustomersData } from "@/lib/strapi";
 
 export default function CustomerStoriesPage() {
-	const [videoOpen, setVideoOpen] = useState(false);
+  const [data, setData] = useState<CustomersData>({});
 
-	return (
-		<div className="customer-stories-page qubi-landing">
-			<Nav onOpenVideo={() => setVideoOpen(true)} />
-			<main>
-				<Hero />
-				<StoryExplorer />
-				<WhyQubi />
-				
-				<Cta />
-			</main>
-			<QubiFooter />
-			<VideoModal open={videoOpen} onClose={() => setVideoOpen(false)} />
-		</div>
-	);
+  useEffect(() => {
+    getCustomersPage().then(setData).catch(console.error);
+  }, []);
+
+  const on = (b?: { Publish?: boolean | null }) => b && b.Publish !== false;
+
+  return (
+    <div className="customer-stories-page">
+      <main>
+        {on(data.hero) && <Hero hero={data.hero!} stats={data.stats} />}
+        {on(data.stories) && <StoryExplorer data={data.stories!} />}
+        {(on(data.why) || on(data.story)) && (
+          <WhyQubi why={data.why} story={data.story} />
+        )}
+        {on(data.cta) && <Cta cta={data.cta!} />}
+      </main>
+    </div>
+  );
 }

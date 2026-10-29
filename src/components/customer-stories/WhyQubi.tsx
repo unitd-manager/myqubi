@@ -1,40 +1,79 @@
-const reasons = [["We Own the Outcome", "qubi doesn't hand you a tool and walk away. We design, deploy, monitor, and optimize your process continuously."], ["No Demos. No POCs.", "We don't demo hypothetical workflows. We execute real operations that are already running for clients like you."], ["Managed Service, Not Software", "You don't need a team to run it. We run it. Our experts manage your AI execution 24/7 as an operational partner."], ["Results-Based Accountability", "We measure success by your business outcomes, processing time, accuracy, cost savings, not by uptime or license seats."]];
+import { itemText, statValue, statLabel } from "@/lib/strapi";
+import type { CsWhyData, CsStoryData } from "@/lib/strapi";
 
-export default function WhyQubi() { 
-  return <section id="why" className="cs-why">
-    <div className="cs-shell">
-      <div className="cs-why-head">
-        <span className="cs-eyebrow">Why qubi</span>
-        <h2>Built for enterprise execution, not another software shelf.</h2>
-      </div>
-      <div className="cs-why-grid">
-        <article className="cs-choose">
-          <div className="cs-sub-label">Why Enterprise Clients Choose qubi</div>
-          <h3>Execution with accountability.</h3>
-          <div className="cs-choose-list">
-            {reasons.map(([title, text]) => 
-              <div className="cs-choose-item" key={title}><strong>{title}</strong><p>{text}</p></div>
+export default function WhyQubi({
+  why,
+  story,
+}: {
+  why?: CsWhyData;
+  story?: CsStoryData;
+}) {
+  const showWhy = why && why.Publish !== false;
+  const showStory = story && story.Publish !== false;
+  const paras = (story?.paragraphs ?? []).map(itemText).filter(Boolean);
+
+  return (
+    <section id="why" className="cs-why">
+      <div className="cs-shell">
+        {showWhy && (why.section_eyebrow || why.section_title) && (
+          <div className="cs-why-head">
+            {why.section_eyebrow && (
+              <span className="cs-eyebrow">{why.section_eyebrow}</span>
             )}
+            {why.section_title && <h2>{why.section_title}</h2>}
           </div>
-          {/* Divider added here */}
-          <div className="cs-choose-divider"></div>
-          <blockquote className="cs-choose-quote">"Repetitive work, manual handoffs, and routine decisions are taken off your team's plate, giving your people more time to focus on the exceptions, decisions, and higher-value work that actually require human judgment."</blockquote>
-        </article>
-        <article className="cs-built">
-          <div>
-            <div className="cs-sub-label">Why We Built qubi</div>
-            <h3>Enterprises don't have a technology problem. They have an execution problem.</h3>
-            <p>AI made intelligence easy. Models got smarter, faster, cheaper. But the work? The work is still stuck. Still manual. Still waiting on someone to act.</p>
-            <p>We watched companies buy AI tools, build dashboards, hire consultants. And still process invoices by hand. Still route claims through spreadsheets. Still reconcile financials at 2 AM.</p>
-            <p className="cs-closing">qubi was built to fix that. Not with another tool. Not with another platform. With a team and an engine that takes your operations and runs them.</p>
-          </div>
-          <div className="cs-proof-row">
-            <div><strong>85%</strong><span>Reduction in processing time</span></div>
-            <div><strong>10x</strong><span>Increase in throughput</span></div>
-            <div><strong>99.2%</strong><span>Accuracy rate achieved</span></div>
-          </div>
-        </article>
+        )}
+
+        <div className="cs-why-grid">
+          {showWhy && (
+            <article className="cs-choose">
+              <div className="cs-sub-label">{why.eyebrow}</div>
+              <h3>{why.main_title}</h3>
+              <div className="cs-choose-list">
+                {(why.items ?? []).map((it, i) => (
+                  <div className="cs-choose-item" key={it.id ?? i}>
+                    <strong>{it.title}</strong>
+                    <p>{it.description}</p>
+                  </div>
+                ))}
+              </div>
+              {why.quote && (
+                <>
+                  <div className="cs-choose-divider"></div>
+                  <blockquote className="cs-choose-quote">
+                    "{why.quote}"
+                  </blockquote>
+                </>
+              )}
+            </article>
+          )}
+
+          {showStory && (
+            <article className="cs-built">
+              <div>
+                <div className="cs-sub-label">{story.eyebrow}</div>
+                <h3>{story.main_title}</h3>
+                {paras.map((p, i) => (
+                  <p
+                    key={i}
+                    className={i === paras.length - 1 ? "cs-closing" : undefined}
+                  >
+                    {p}
+                  </p>
+                ))}
+              </div>
+              <div className="cs-proof-row">
+                {(story.stats ?? []).map((s, i) => (
+                  <div key={s.id ?? i}>
+                    <strong>{statValue(s)}</strong>
+                    <span>{statLabel(s)}</span>
+                  </div>
+                ))}
+              </div>
+            </article>
+          )}
+        </div>
       </div>
-    </div>
-  </section>; 
+    </section>
+  );
 }

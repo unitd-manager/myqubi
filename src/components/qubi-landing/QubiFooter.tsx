@@ -1,7 +1,29 @@
-import qubiLogo from "@/assets/qubi-logo1.png";
-import qboticaLogo from "@/assets/logo-front.webp";
+import type { FooterData, FooterLink } from "@/lib/strapi";
 
-const QubiFooter = () => {
+interface FooterProps {
+  footer: FooterData | null;
+}
+
+const visible = (l: FooterLink) => (l.publish ?? l.Publish) !== false;
+const isExternal = (url: string) => /^https?:\/\//.test(url);
+
+const FooterAnchor = ({ link }: { link: FooterLink }) => (
+  <a
+    href={link.url}
+    {...(isExternal(link.url)
+      ? { target: "_blank", rel: "noreferrer" }
+      : {})}
+  >
+    {link.label}
+  </a>
+);
+
+const QubiFooter = ({ footer }: FooterProps) => {
+  if (!footer) return null;
+
+  const columns = footer.columns ?? [];
+  const legal = (footer.legal_links ?? []).filter(visible);
+
   return (
     <footer>
       <div className="site-shell">
@@ -9,41 +31,49 @@ const QubiFooter = () => {
           <div className="footer-intro">
             <a className="brand" href="/#top">
               <div className="brand-logo-wrap">
-                <img src={qubiLogo} alt="qubi" className="brand-mark" />
+                {footer.logo?.url && (
+                  <img
+                    src={footer.logo.url}
+                    alt={footer.logo.alternativeText || "qubi"}
+                    className="brand-mark"
+                  />
+                )}
                 <div className="brand-divider"></div>
                 <div className="powered-by" aria-label="Powered by qBotica">
-                  <span>POWERED BY</span>
-                  <img src={qboticaLogo} alt="qBotica" className="qbotica-wordmark" />
+                  <span>{footer.powered_by_label}</span>
+                  {footer.powered_by_logo?.url && (
+                    <img
+                      src={footer.powered_by_logo.url}
+                      alt={footer.powered_by_logo.alternativeText || "qBotica"}
+                      className="qbotica-wordmark"
+                    />
+                  )}
                 </div>
               </div>
             </a>
-            <p>The agentic orchestration platform connecting AI agents, automations, systems, and people.</p>
+            {footer.tagline && <p>{footer.tagline}</p>}
           </div>
-          <div className="footer-col">
-            <strong>Product</strong>
-            <a href="/#why">Why qubi</a>
-            <a href="/#how">How it works</a>
-            <a href="/#enterprise">Built for enterprise</a>
-            <a href="/pricing">Pricing</a>
-          </div>
-          <div className="footer-col">
-            <strong>Solutions</strong>
-            <a href="/#use-cases">Operations</a>
-            <a href="/#use-cases">Finance</a>
-            <a href="/#use-cases">Human resources</a>
-            <a href="/#use-cases">IT service management</a>
-          </div>
-          <div className="footer-col">
-            <strong>Company</strong>
-            <a href="https://www.qbotica.com/" target="_blank" rel="noreferrer">qBotica ↗</a>
-            <a href="/customers">Customers</a>
-            <a href="https://meetings.hubspot.com/enterprisedemo/qubi-consultation" target="_blank" rel="noreferrer">Book a demo</a>
-          </div>
+
+          {columns.map((col) => (
+            <div className="footer-col" key={col.id}>
+              <strong>{col.title}</strong>
+              {(col.links ?? []).filter(visible).map((link) => (
+                <FooterAnchor key={link.id} link={link} />
+              ))}
+            </div>
+          ))}
         </div>
+
         <div className="copyright">
           <span>
-            Privacy Policy · Terms of Service
+            {legal.map((link, i) => (
+              <span key={link.id}>
+                <FooterAnchor link={link} />
+                {i < legal.length - 1 && " · "}
+              </span>
+            ))}
           </span>
+          {footer.copyright_text && <span>{footer.copyright_text}</span>}
         </div>
       </div>
     </footer>
