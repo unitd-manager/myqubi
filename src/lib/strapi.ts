@@ -513,20 +513,22 @@ export async function getPageBySlug(slug: string): Promise<PageData | null> {
   return json.data ?? null;
 }
 
-/** First block of a given component in a page's pageBuilder */
+/** Block of a given component in a page's pageBuilder (nth = 0 for the first, 1 for the second, …) */
 export function findBlock<T extends { __component: string }>(
   page: PageData | null,
-  uid: T["__component"]
+  uid: T["__component"],
+  nth = 0
 ): T | undefined {
-  return page?.pageBuilder?.find((b) => b.__component === uid) as T | undefined;
+  return page?.pageBuilder?.filter((b) => b.__component === uid)[nth] as T | undefined;
 }
 
 /** Admin block when present, otherwise the fallback; null when an editor unpublished it. */
 export function pickBlock<T extends { __component: string; Publish?: boolean | null }>(
   page: PageData | null,
-  fallback: T
+  fallback: T,
+  nth = 0
 ): T | null {
-  const block = findBlock<T>(page, fallback.__component) ?? fallback;
+  const block = findBlock<T>(page, fallback.__component, nth) ?? fallback;
   return block.Publish === false ? null : block;
 }
 
@@ -537,6 +539,24 @@ export const isShown = (button?: { Publish?: boolean | null; label?: string } | 
 /** Drop repeatable items an editor unpublished in the admin */
 export const published = <T extends { Publish?: boolean | null }>(items?: T[] | null): T[] =>
   (items ?? []).filter((i) => i.Publish !== false);
+
+/* ---------------- SOLUTIONS page blocks ---------------- */
+export interface SolutionsUseCasesData {
+  eyebrowLabel?: string;
+  heading?: string;
+  highlightedHeading?: string;
+  description?: string;
+  useCases?: {
+    id: number;
+    categoryLabel?: string;
+    title?: string;
+    description?: string;
+    stats?: { id: number; text?: string; Publish?: boolean | null }[];
+    Publish?: boolean | null;
+  }[];
+  Publish?: boolean | null;
+  __component: "acf-sections.solutions-use-cases-layout";
+}
 
 /* ---------------- PRICING page blocks ---------------- */
 export interface IconCardItem {
