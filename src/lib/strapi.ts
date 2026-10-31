@@ -260,8 +260,28 @@ export interface FaqPageData {
 }
 
 /* ================= HELPERS ================= */
-export const statValue = (s: Loose) =>
-  String(s?.value ?? s?.number ?? s?.stat ?? s?.title ?? "");
+/**
+ * Metric / stat value.
+ * - Case-study metrics: primary_value + metric_type
+ *     before_after -> "21 days → 2 days"
+ *     reduction    -> "-60%"
+ *     value        -> "95%"
+ * - Plain stats: value / number / stat / title
+ */
+export const statValue = (s: Loose) => {
+  if (s?.primary_value !== undefined && s?.primary_value !== null) {
+    const p = String(s.primary_value);
+
+    if (s.metric_type === "before_after" && s.secondary_value) {
+      return `${s.secondary_value} → ${p}`;
+    }
+    if (s.metric_type === "reduction") {
+      return p.startsWith("-") ? p : `-${p}`;
+    }
+    return p;
+  }
+  return String(s?.value ?? s?.number ?? s?.stat ?? s?.title ?? "");
+};
 
 export const statLabel = (s: Loose) =>
   String(s?.label ?? s?.description ?? s?.text ?? "");
@@ -276,10 +296,12 @@ export const toLines = (md?: string): string[] =>
     .map((l) => l.replace(/^[#>\-*\s]+/, "").replace(/[*_`]/g, "").trim())
     .filter(Boolean);
 
-/** metrics: repeatable [{value,label}] OR text lines "value | label" */
+/** metrics: repeatable [{label, primary_value...}] OR text lines "value | label" */
 export function parseMetrics(m: unknown): { value: string; label: string }[] {
   if (Array.isArray(m)) {
-    return m.map((x) => ({ value: statValue(x), label: statLabel(x) }));
+    return m
+      .filter((x) => x?.Publish !== false)
+      .map((x) => ({ value: statValue(x), label: statLabel(x) }));
   }
   if (typeof m === "string") {
     return m
@@ -320,6 +342,23 @@ const safeBlock = <T extends { __component: string }>(
     console.error(`Block failed [${slug}]:`, uid, e);
     return undefined;
   });
+
+/** Case studies block: `metrics` is a nested component, so populate it explicitly */
+async function getCaseStudiesBlock(
+  slug: string
+): Promise<CsStoriesData | undefined> {
+  const uid = "acf-sections.qubi-case-studies-section";
+  const url =
+    `${BASE}/api/pages?filters[slug]=${slug}` +
+    `&populate[pageBuilder][on][${uid}][populate][case_studies][populate][metrics]=true`;
+
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`Strapi error ${res.status}`);
+
+  const json = await res.json();
+  const blocks: CsStoriesData[] = json.data?.[0]?.pageBuilder ?? [];
+  return blocks.find((b) => b.__component === uid);
+}
 
 /* ================= HEADER / FOOTER FETCH ================= */
 export async function getHeader(): Promise<HeaderData | null> {
@@ -376,10 +415,10 @@ export async function getCustomersPage(): Promise<CustomersData> {
   const [hero, stats, stories, story, why, cta] = await Promise.all([
     safeBlock<CsHeroData>("acf-sections.qubi-simple-hero", "customers"),
     safeBlock<CsStatsData>("acf-sections.qubi-stats-section", "customers"),
-    safeBlock<CsStoriesData>(
-      "acf-sections.qubi-case-studies-section",
-      "customers"
-    ),
+    getCaseStudiesBlock("customers").catch((e) => {
+      console.error("Case studies block failed:", e);
+      return undefined;
+    }),
     safeBlock<CsStoryData>("acf-sections.qubi-story-section", "customers"),
     safeBlock<CsWhyData>(
       "acf-sections.qubi-differentiators-section",

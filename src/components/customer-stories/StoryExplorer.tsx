@@ -3,14 +3,19 @@ import { parseMetrics } from "@/lib/strapi";
 import type { CsStoriesData } from "@/lib/strapi";
 
 export default function StoryExplorer({ data }: { data: CsStoriesData }) {
-  const items = data.case_studies ?? [];
+  const items = (data.case_studies ?? []).filter((c) => c.Publish !== false);
   const [active, setActive] = useState(0);
   const story = items[active] ?? items[0];
   if (!story) return null;
 
   const metrics = parseMetrics(story.metrics);
-  const quoteBy = story.quote_by ?? story.quoteBy;
-  const navMetric = story.nav_metric ?? story.navMetric;
+  const quoteBy = story.quote_role ?? story.quote_by ?? story.quoteBy;
+
+  const navMetric = (item: (typeof items)[number]) =>
+    item.nav_metric ??
+    item.navMetric ??
+    item.metrics?.find((m: { Publish?: boolean | null }) => m.Publish !== false)
+      ?.primary_value;
 
   return (
     <section id="stories" className="cs-stories cs-section-pad">
@@ -34,7 +39,7 @@ export default function StoryExplorer({ data }: { data: CsStoriesData }) {
               >
                 <small>{item.industry}</small>
                 <strong>{item.title}</strong>
-                <span>{item.nav_metric ?? item.navMetric}</span>
+                <span>{navMetric(item)}</span>
               </button>
             ))}
           </aside>
