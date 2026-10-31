@@ -151,69 +151,50 @@ class StrapiAPIService {
    * Fetch SEO metadata for a specific page (uses slug instead of path)
    */
   async fetchSEOMetadata(slug: string): Promise<SEOMetadata | null> {
-    try {
-      const slugsToTry = Array.from(
-        new Set([slug, slug.startsWith('/') ? slug.slice(1) : `/${slug}`].filter(Boolean))
-      );
-
-      for (const s of slugsToTry) {
-        const queries = [
-          `/pages?filters[slug][$eq]=${encodeURIComponent(s)}`,
-          `/pages?populate[seo]=*&filters[slug][$eq]=${encodeURIComponent(s)}`,
-          `/pages?populate=seo&filters[slug][$eq]=${encodeURIComponent(s)}`,
-          `/pages?populate=*&filters[slug][$eq]=${encodeURIComponent(s)}`,
-        ];
-
-        for (const q of queries) {
-          const response = await api.get<unknown>(q);
-          const items = this.getPageItems(response.data);
-          if (items.length > 0) {
-            const pageData = items[0];
-            return this.normalizeSEOData(pageData, slug);
-          }
-        }
-      }
-
-      return null;
-    } catch (error) {
-      console.error('Error fetching SEO metadata:', error);
-      return null;
-    }
+    const pageData = await this.fetchPageWithSeo(slug);
+    return pageData ? this.normalizeSEOData(pageData, slug) : null;
   }
 
   /**
    * Fetch JSON-LD schema for a page (uses schema field from SEO component)
    */
   async fetchJSONLDSchema(slug: string): Promise<JSONLDSchema | null> {
-    try {
-      const slugsToTry = Array.from(
-        new Set([slug, slug.startsWith('/') ? slug.slice(1) : `/${slug}`].filter(Boolean))
-      );
+    const pageData = await this.fetchPageWithSeo(slug);
+    return (pageData && this.getPageAttributes(pageData).seo?.schema) || null;
+  }
 
-      for (const s of slugsToTry) {
-        const queries = [
-          `/pages?filters[slug][$eq]=${encodeURIComponent(s)}`,
-          `/pages?populate[seo]=*&filters[slug][$eq]=${encodeURIComponent(s)}`,
-          `/pages?populate=seo&filters[slug][$eq]=${encodeURIComponent(s)}`,
-          `/pages?populate=*&filters[slug][$eq]=${encodeURIComponent(s)}`,
-        ];
+  /**
+   * First page matching the slug ("pricing" or "/pricing") that comes back with
+   * its seo component. A query the API rejects (e.g. populate[seo]=* when the
+   * public role can't read media) is skipped instead of aborting the lookup.
+   */
+  private async fetchPageWithSeo(slug: string): Promise<unknown | null> {
+    const bare = slug.replace(/^\/+/, '');
+    const slugsToTry = Array.from(new Set([bare, `/${bare}`].filter((s) => s !== '/')));
+    let firstMatch: unknown | null = null;
 
-        for (const q of queries) {
+    for (const s of slugsToTry) {
+      const filter = `filters[slug][$eq]=${encodeURIComponent(s)}`;
+      const queries = [
+        `/pages?populate=seo&${filter}`,
+        `/pages?populate[seo]=*&${filter}`,
+        `/pages?${filter}`,
+      ];
+
+      for (const q of queries) {
+        try {
           const response = await api.get<unknown>(q);
           const items = this.getPageItems(response.data);
-          if (items.length > 0) {
-            const pageData = items[0];
-            const attrs = this.getPageAttributes(pageData);
-            if (attrs.seo?.schema) return attrs.seo.schema;
-          }
+          if (items.length === 0) continue;
+          if (this.getPageAttributes(items[0]).seo) return items[0];
+          firstMatch ??= items[0];
+        } catch (error) {
+          console.warn('SEO query failed, trying the next one:', q, error);
         }
       }
-
-      return null;
-    } catch (error) {
-      console.error('Error fetching JSON-LD schema:', error);
-      return null;
     }
+
+    return firstMatch;
   }
 
   /**

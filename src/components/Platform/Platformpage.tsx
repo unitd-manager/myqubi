@@ -4,12 +4,12 @@ import "../qubi-landing/qubi-landing.css";
 import "./Platformpage.css";
 import { useSEO } from "@/hooks/useSEO";
 import { SEOHead } from "@/components/SEOHead";
-import qubiLogo from "@/assets/qubi-logo.png";
 import {
   getPageBySlug,
   pickBlock,
   isShown,
   published,
+  mediaSrc,
   type PageData,
   type PlatformHeroData,
   type PlatformStoryData,
@@ -20,133 +20,9 @@ import {
   type CtaData,
 } from "@/lib/strapi";
 
-/* ---------------- Fallback content (used until the admin page has the block) ---------------- */
-const steps = (rows: [string, string, string][]) =>
-  rows.map(([number, title, description], id) => ({ id, number, title, description }));
-
-const FALLBACK_HERO: PlatformHeroData = {
-  __component: "acf-sections.platform-hero",
-  eyebrow: "The qubi Platform",
-  main_title: "One platform.",
-  title_highlight: "Built to expand.",
-  description: "Bring AI agents, automation, orchestration, integrations, human decisions, analytics, and governance into one connected environment — and add capabilities as your operation grows.",
-  intro_text: "A growing platform designed to let teams start where they need and expand without rebuilding the foundation.",
-  stats: [
-    { id: 1, value: "One", label: "shared identity" },
-    { id: 2, value: "Flexible", label: "capability adoption" },
-    { id: 3, value: "Connected", label: "enterprise execution" },
-  ],
-};
-
-const FALLBACK_STORY: PlatformStoryData = {
-  __component: "acf-sections.platform-story",
-  eyebrow: "How it fits together",
-  main_title: "Start with what you need.",
-  title_highlight: "Expand from there.",
-  description: "The platform is designed so teams can adopt individual capabilities, connect them through a common foundation, and add more as their automation and AI programs mature.",
-  steps: steps([
-    ["", "Sign in", "Move across the platform through a shared identity and access model."],
-    ["", "Adopt", "Begin with the capability that solves the immediate operational need."],
-    ["", "Connect", "Bring agents, automations, systems, data, and human decisions into the same operating environment."],
-    ["", "Govern", "Manage users, roles, permissions, organizations, and access from a shared foundation."],
-    ["", "Expand", "Add new platform capabilities as teams, workflows, and use cases grow."],
-  ]),
-};
-
-const product = (id: number, category: string, tag: string, title: string, description: string, caps: string[]) => ({
-  id, category, tag, title, description,
-  capabilities: caps.map((text, i) => ({ id: i, text })),
-});
-
-const FALLBACK_EXPLORER: PlatformExplorerData = {
-  __component: "acf-sections.platform-explorer",
-  eyebrow: "Explore the Platform",
-  main_title: "Explore qubi by",
-  title_highlight: "capability.",
-  description: "Select a capability area on the left to explore the products and functions available across the platform. The structure can continue to grow as new capabilities are introduced.",
-  sidebar_label: "Platform capabilities",
-  details_heading: "Key capabilities",
-  footer_text: "Part of the connected qubi platform ecosystem",
-  categories: ["Build & Intelligence", "Automate & Execute", "Connect & Orchestrate", "Govern & Manage", "Discover & Improve", "Operate & Support"].map((text, id) => ({ id, text })),
-  products: [
-    product(1, "Build & Intelligence", "Build", "AgentHub / AI Builder", "A visual IDE for chat agents, voice agents, and agentic workflows. Design agents with governance guardrails, evaluations, and model fallback built in, then chain them into workflows with variables and versions.", ["Chat & voice agents on their own runtime", "Model-agnostic; credentials encrypted at rest", "Skills & MCP servers for external tools", "RAG sources chunked and embedded", "Jobs, queues & triggers on demand or scheduled", "Memory & vaults for encrypted continuity"]),
-    product(2, "Govern & Manage", "Govern", "Qubi Platform", "Secure authentication, access management, and the launcher for everything. Single sign-on with one directory of people and role-based access applied across the platform.", ["Single sign-on with claims kept server-side", "User profiles unified across products", "Roles & permissions granular per product", "Organizations & tenants with isolated data", "Organization units scope what each person sees", "Product catalog & signed licensing"]),
-    product(3, "Build & Intelligence", "Automate", "Automation Studio", "Low-code, drag-and-drop automation building. Compose end-to-end automations visually without heavy engineering, and hand them off to run on the platform.", ["Drag-and-drop builder", "Reusable automation components", "No deep coding required"]),
-    product(4, "Govern & Manage", "Orchestrate", "Control Hub", "Centralized orchestration and monitoring. Run, schedule, and observe every automation and agent from one operational control plane.", ["Centralized orchestration", "Real-time monitoring", "Single pane of control"]),
-    product(5, "Automate & Execute", "Execute", "Bot Agents", "Digital workers for attended and unattended work. Deploy bots that carry out repetitive, rules-based tasks alongside people or fully in the background.", ["Attended & unattended modes", "Repetitive work offloaded", "Scales with demand"]),
-    product(6, "Connect & Orchestrate", "Connect", "Integration Hub", "Third-party APIs, connections, and data sync. Wire qubi into the systems you already run so work flows between them without manual keying.", ["Third-party API connections", "Data sync across systems", "Prebuilt & custom connectors"]),
-    product(7, "Connect & Orchestrate", "Act", "Action Hub", "Business users act directly on a workflow. Give non-technical teams a place to review, approve, and push work forward without leaving the platform.", ["Business-user friendly", "Act directly on live workflows", "Human decisions in the loop"]),
-    product(8, "Discover & Improve", "Discover", "Idea Hub", "Automation ideas, assessment, and ROI. Capture candidate processes, score them, and prioritize what to automate next by expected return.", ["Idea capture & pipeline", "Automation assessment", "ROI prioritization"]),
-    product(9, "Discover & Improve", "Measure", "Analytics Hub", "Performance dashboards and ROI measurement. Track execution, throughput, and value delivered across the platform from one analytics layer.", ["Performance dashboards", "ROI measurement", "Cross-product visibility"]),
-    product(10, "Operate & Support", "Support", "Support Hub", "Ticketing and incident management. Raise, route, and resolve issues across the platform so operations keep moving.", ["Ticketing built in", "Incident management", "Faster resolution"]),
-  ],
-};
-
-const points = (rows: [string, string][]) => rows.map(([label, value], id) => ({ id, label, value }));
-
-const FALLBACK_FOUNDATION: PlatformFoundationData = {
-  __component: "acf-sections.platform-foundation",
-  eyebrow: "Platform Foundation",
-  main_title: "The layers that keep everything",
-  title_highlight: "connected.",
-  description: "The platform is more than a catalog of products. Shared intelligence, identity, governance, and operational control give each capability a common foundation.",
-  cards: [
-    {
-      id: 1,
-      eyebrow: "Intelligence & Agent Foundation",
-      title: "AgentHub / AI Builder",
-      description: "A visual environment for chat agents, voice agents, and agentic workflows, with governance guardrails, evaluations, model fallback, RAG, tools, jobs, queues, triggers, memory, and encrypted continuity.",
-      dark: true,
-      points: points([["Models", "Model-agnostic execution"], ["Knowledge", "RAG sources + retrieval"], ["Tools", "Skills + MCP servers"], ["Operations", "Jobs, queues + triggers"]]),
-    },
-    {
-      id: 2,
-      eyebrow: "Identity & Governance Foundation",
-      title: "Qubi Platform",
-      description: "Secure authentication, access management, and the launcher for the platform — one directory of people with role-based access and tenant-aware governance.",
-      dark: false,
-      points: points([["Identity", "OpenID Connect + OAuth 2.0"], ["Access", "Roles + permissions"], ["Structure", "Organizations + tenants"], ["Catalog", "Products + licensing"]]),
-    },
-  ],
-};
-
-const FALLBACK_SCALE: PlatformScaleData = {
-  __component: "acf-sections.platform-scale",
-  eyebrow: "Designed to Grow",
-  main_title: "Not a fixed suite.",
-  title_highlight: "An expandable platform.",
-  description: "qubi does not need to be defined by a fixed number of products. New capabilities can join the same ecosystem while the customer experience — identity, governance, connections, and operations — stays consistent.",
-  steps: steps([
-    ["01", "Start focused", "Adopt the capability that addresses the immediate need."],
-    ["02", "Connect the work", "Link enterprise systems, agents, automation, and people."],
-    ["03", "Govern centrally", "Apply shared identity, roles, access, and operational visibility."],
-    ["04", "Expand continuously", "Add capabilities and use cases without redesigning the platform foundation."],
-  ]),
-};
-
-const FALLBACK_BRIDGE: PlatformBridgeData = {
-  __component: "acf-sections.platform-bridge",
-  eyebrow: "Platform + Solutions",
-  main_title: "See what the platform can put to work.",
-  description: "The Platform page explains what qubi is made of. The Solutions page shows how those capabilities come together across real workflows and industries.",
-  button: { id: 1, label: "Explore Solutions →", url: "/solutions", Publish: true },
-  secondary_button: { id: 2, label: "Watch the Demo", url: "", Publish: true },
-};
-
-const FALLBACK_CTA: CtaData = {
-  __component: "acf-sections.qubi-final-cta-section",
-  main_title: "Build from where you are.",
-  description: "Explore the qubi platform with your current workflows in mind, then expand the environment as your automation and AI needs grow.",
-  button: { id: 1, label: "Book a Platform Walkthrough →", url: "https://meetings.hubspot.com/enterprisedemo/qubi-consultation", Publish: true },
-};
-
-
+// All content comes from the admin "platform" page; a section without its block is not rendered.
 export default function Platformpage() {
-  const { metadata, jsonLD } = useSEO({
-    path: "/platform",
-    fallbackTitle: "Qubi Platform | One Platform Built to Expand",
-    fallbackDescription: "Explore qubi Platform",
-  });
+  const { metadata, jsonLD } = useSEO({ path: "/platform" });
   const { openVideo } = useOutletContext<{ openVideo: () => void }>();
   const navigate = useNavigate();
 
@@ -155,20 +31,20 @@ export default function Platformpage() {
     getPageBySlug("platform").then(setPage).catch(console.error);
   }, []);
 
-  const hero = pickBlock(page, FALLBACK_HERO);
-  const story = pickBlock(page, FALLBACK_STORY);
-  const explorer = pickBlock(page, FALLBACK_EXPLORER);
-  const foundation = pickBlock(page, FALLBACK_FOUNDATION);
-  const scale = pickBlock(page, FALLBACK_SCALE);
-  const bridge = pickBlock(page, FALLBACK_BRIDGE);
-  const cta = pickBlock(page, FALLBACK_CTA);
+  const hero = pickBlock<PlatformHeroData>(page, "acf-sections.platform-hero");
+  const story = pickBlock<PlatformStoryData>(page, "acf-sections.platform-story");
+  const explorer = pickBlock<PlatformExplorerData>(page, "acf-sections.platform-explorer");
+  const foundation = pickBlock<PlatformFoundationData>(page, "acf-sections.platform-foundation");
+  const scale = pickBlock<PlatformScaleData>(page, "acf-sections.platform-scale");
+  const bridge = pickBlock<PlatformBridgeData>(page, "acf-sections.platform-bridge");
+  const cta = pickBlock<CtaData>(page, "acf-sections.qubi-final-cta-section");
 
   const products = published(explorer?.products);
   const groups = published(explorer?.categories).map((c) => c.text ?? "");
 
   const [selected, setSelected] = useState(0);
   const [openGroups, setOpenGroups] = useState<string[]>([]);
-  // Open the first product's group once products are known (and again if admin data replaces the fallback).
+  // Open the first product's group once the admin data has loaded.
   useEffect(() => {
     setSelected(0);
     setOpenGroups(products[0]?.category ? [products[0].category] : []);
@@ -279,8 +155,10 @@ export default function Platformpage() {
                   <div className="platform-detail-foot">
                     <span>{explorer.footer_text}</span>
                     <span className="platform-foot-brand">
-                      <img src={qubiLogo} alt="qubi" className="platform-foot-logo" />
-                      Platform
+                      {mediaSrc(explorer.footer_logo) && (
+                        <img src={mediaSrc(explorer.footer_logo)} alt={explorer.footer_logo?.alternativeText ?? ""} className="platform-foot-logo" />
+                      )}
+                      {explorer.footer_brand}
                     </span>
                   </div>
                 </article>

@@ -484,6 +484,8 @@ export interface PlatformExplorerData {
   sidebar_label?: string;
   details_heading?: string;
   footer_text?: string;
+  footer_logo?: StrapiImage | null;
+  footer_brand?: string;
   categories?: { id: number; text?: string; Publish?: boolean | null }[];
   products?: {
     id: number;
@@ -561,15 +563,33 @@ export function findBlock<T extends { __component: string }>(
   return page?.pageBuilder?.filter((b) => b.__component === uid)[nth] as T | undefined;
 }
 
-/** Admin block when present, otherwise the fallback; null when an editor unpublished it. */
+/** Admin block to render; null when the page doesn't have it or an editor unpublished it. */
 export function pickBlock<T extends { __component: string; Publish?: boolean | null }>(
   page: PageData | null,
-  fallback: T,
+  uid: T["__component"],
   nth = 0
 ): T | null {
-  const block = findBlock<T>(page, fallback.__component, nth) ?? fallback;
-  return block.Publish === false ? null : block;
+  const block = findBlock<T>(page, uid, nth);
+  return block && block.Publish !== false ? block : null;
 }
+
+/** Strapi media URL (relative uploads are served by the admin) */
+export const mediaSrc = (image?: StrapiImage | null) =>
+  image?.url ? (image.url.startsWith("http") ? image.url : `${BASE}${image.url}`) : undefined;
+
+/** Title text: a new line is a line break, *text* is the highlighted (italic) part. */
+export const titleParts = (text?: string) =>
+  (text ?? "").split("\n").map((line) =>
+    line.split(/(\*[^*]+\*)/).filter(Boolean).map((part) =>
+      part.startsWith("*") && part.endsWith("*")
+        ? { text: part.slice(1, -1), highlight: true }
+        : { text: part, highlight: false }
+    )
+  );
+
+/** Multi-line text field → non-empty lines */
+export const lines = (text?: string) =>
+  (text ?? "").split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
 
 /** A button is rendered only when it has a label and is not unpublished */
 export const isShown = (button?: { Publish?: boolean | null; label?: string } | null) =>
@@ -617,15 +637,32 @@ export interface SimpleHeroData {
 export interface PlansData {
   eyebrow?: string;
   main_title?: string;
-  description?: string;
   cta_url?: string;
+  nav_label?: string;
+  popular_label?: string;
+  compare_button_label?: string;
+  fit_label?: string;
+  profile_label?: string;
+  profile_items?: PlatformLabelValue[];
   plans?: {
     id: number;
     tagline?: string;
     title?: string;
+    tab_label?: string;
+    popular?: boolean | null;
     description?: string;
     cta_label?: string;
+    fit_title?: string;
+    fit_description?: string;
     features?: { id: number; text?: string; Publish?: boolean | null }[];
+    Publish?: boolean | null;
+  }[];
+  compare_title?: string;
+  compare_aspect_label?: string;
+  compare_rows?: {
+    id: number;
+    aspect?: string;
+    values?: { id: number; text?: string; Publish?: boolean | null }[];
     Publish?: boolean | null;
   }[];
   Publish?: boolean | null;
@@ -655,6 +692,7 @@ export interface ExecutionData {
 export interface ComparisonData {
   eyebrow?: string;
   main_title?: string;
+  aspect_label?: string;
   them_label?: string;
   us_label?: string;
   rows?: { id: number; aspect?: string; them?: string; us?: string; Publish?: boolean | null }[];

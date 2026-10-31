@@ -504,6 +504,10 @@ function prerenderSeoHtmlPlugin(mode: string): Plugin {
   };
 }
 
+// Dev proxy follows VITE_STRAPI_URL so /api and /uploads hit the same admin as the page data.
+const devStrapiTarget = (mode: string) =>
+  (loadEnv(mode, process.cwd(), "").VITE_STRAPI_URL || "https://qubiadmin.unitdtechnologies.com").replace(/\/$/, "");
+
 export default defineConfig(({ mode }) => ({
   server: {
     host: "::",
@@ -513,11 +517,11 @@ export default defineConfig(({ mode }) => ({
     },
     proxy: {
       "/api": {
-        target: "https://qubiadmin.unitdtechnologies.com",
+        target: devStrapiTarget(mode),
         changeOrigin: true,
       },
       "/uploads": {
-        target: "https://qubiadmin.unitdtechnologies.com",
+        target: devStrapiTarget(mode),
         changeOrigin: true,
       },
     },
