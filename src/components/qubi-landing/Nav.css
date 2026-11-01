@@ -355,4 +355,10 @@
   .qubi-landing .nav-watch {
     display: none !important;
   }
+
+.qubi-landing .nav-wrap {
+  z-index: 70;
+}
+
+
 }

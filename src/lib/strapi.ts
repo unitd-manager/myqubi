@@ -316,6 +316,21 @@ export function parseMetrics(m: unknown): { value: string; label: string }[] {
   return [];
 }
 
+/* ================= REQUEST CACHE (same URL = one network call) ================= */
+const cache = new Map<string, Promise<unknown>>();
+function cachedJson<T>(url: string): Promise<T> {
+  let p = cache.get(url) as Promise<T> | undefined;
+  if (!p) {
+    p = fetch(url).then((res) => {
+      if (!res.ok) throw new Error(`Strapi error ${res.status}`);
+      return res.json() as Promise<T>;
+    });
+    p.catch(() => cache.delete(url)); // failed call -> retry allowed
+    cache.set(url, p);
+  }
+  return p;
+}
+
 /* ================= GENERIC BLOCK FETCH ================= */
 async function getBlock<T extends { __component: string }>(
   uid: string,
@@ -325,10 +340,7 @@ async function getBlock<T extends { __component: string }>(
     `${BASE}/api/pages?filters[slug]=${slug}` +
     `&populate[pageBuilder][on][${uid}][populate]=*`;
 
-  const res = await fetch(url);
-  if (!res.ok) throw new Error(`Strapi error ${res.status}`);
-
-  const json = await res.json();
+  const json = await cachedJson<{ data?: { pageBuilder?: T[] }[] }>(url);
   const blocks: T[] = json.data?.[0]?.pageBuilder ?? [];
   return blocks.find((b) => b.__component === uid);
 }
@@ -352,10 +364,7 @@ async function getCaseStudiesBlock(
     `${BASE}/api/pages?filters[slug]=${slug}` +
     `&populate[pageBuilder][on][${uid}][populate][case_studies][populate][metrics]=true`;
 
-  const res = await fetch(url);
-  if (!res.ok) throw new Error(`Strapi error ${res.status}`);
-
-  const json = await res.json();
+  const json = await cachedJson<{ data?: { pageBuilder?: CsStoriesData[] }[] }>(url);
   const blocks: CsStoriesData[] = json.data?.[0]?.pageBuilder ?? [];
   return blocks.find((b) => b.__component === uid);
 }
@@ -366,11 +375,9 @@ export async function getHeader(): Promise<HeaderData | null> {
     `${BASE}/api/header` +
     `?populate[logo]=true` +
     `&populate[powered_by_logo]=true` +
-    `&populate[nav_links][populate][children]=true`;
+    `&populate[nav_links]=true`;
 
-  const res = await fetch(url);
-  if (!res.ok) throw new Error(`Strapi error ${res.status}`);
-  const json = await res.json();
+  const json = await cachedJson<{ data?: HeaderData | null }>(url);
   return json.data ?? null;
 }
 
@@ -382,9 +389,7 @@ export async function getFooter(): Promise<FooterData | null> {
     `&populate[columns][populate][links]=true` +
     `&populate[legal_links]=true`;
 
-  const res = await fetch(url);
-  if (!res.ok) throw new Error(`Strapi error ${res.status}`);
-  const json = await res.json();
+  const json = await cachedJson<{ data?: FooterData | null }>(url);
   return json.data ?? null;
 }
 

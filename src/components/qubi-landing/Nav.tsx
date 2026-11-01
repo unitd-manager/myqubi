@@ -130,7 +130,7 @@ const Nav = ({ header, onOpenVideo }: NavProps) => {
       </div>
 
       {isMobileOpen && (
-        <div className="mobile-menu">
+        <div className="mobile-menu open">
           {links.map((link) => (
             <a
               key={link.id}
