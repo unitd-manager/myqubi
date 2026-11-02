@@ -3,6 +3,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
 import { RedirectHandler } from "@/components/RedirectHandler";
 import SiteLayout from "@/components/qubi-landing/SiteLayout";
+import GoogleAnalytics from "@/components/GoogleAnalytics";
 import Index from "./pages/Index.tsx";
 
 const ScrollToTop = () => {
@@ -47,6 +48,7 @@ const App = () => {
   return (
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
+        <GoogleAnalytics />
         {showDeferredUi ? (
           <Suspense fallback={null}>
             <Toaster />
